@@ -22,3 +22,6 @@ dependencyResolutionManagement {
 rootProject.name = "Expense Book"
 include(":app")
 include(":core:ui")
+include(":core:di")
+include(":core:common")
+include(":core:database")
