@@ -1,15 +1,19 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
 import com.mdshahsamir.expensebook.model.ExpenseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(): ViewModel() {
+class DashboardViewModel @Inject constructor(
+    private val dashboardRepository: DashboardRepository
+) : ViewModel() {
     private val listOfExpenses = ArrayList<ExpenseState>()
 
     private val _listOfExpenseState = MutableStateFlow(listOfExpenses)
@@ -53,8 +57,9 @@ class DashboardViewModel @Inject constructor(): ViewModel() {
             spendAmount = 0f
         )
 
-        listOfExpenses.add(expense)
-        _listOfExpenseState.value = listOfExpenses
+        viewModelScope.launch {
+            dashboardRepository.addCategory(expense)
+        }
     }
 
     private fun addFund(intent: ExpenseIntent.AddFund) {
