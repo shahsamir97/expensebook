@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Expense Book</string>
+    <string name="add_category">Add Category</string>
 </resources>
