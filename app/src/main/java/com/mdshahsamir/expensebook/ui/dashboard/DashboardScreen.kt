@@ -83,15 +83,17 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
-    expenseState: ArrayList<ExpenseState>,
+    expenseState: List<ExpenseState>,
     onClickItem: (index: Int) -> Unit,
     onClickAddCategory: () -> Unit,
 ) {
     Scaffold(
-        topBar = { TopAppBar(
-            title = { Text(text = "Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
-        ) },
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier.padding(12.dp),
