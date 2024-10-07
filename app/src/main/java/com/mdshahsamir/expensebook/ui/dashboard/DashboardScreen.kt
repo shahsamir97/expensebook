@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,8 +44,8 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
 
     DashboardContent(
         expenseState = expenseState,
-        onClickItem = { index ->
-            viewModel.processIntent(ExpenseIntent.ShowInputDialog(index))
+        onClickItem = { expense ->
+            viewModel.processIntent(ExpenseIntent.ShowInputDialog(expense))
         },
         onClickAddCategory = {
             viewModel.processIntent(ExpenseIntent.ShowAddCategoryDialog)
@@ -84,7 +84,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
 @Composable
 fun DashboardContent(
     expenseState: List<ExpenseState>,
-    onClickItem: (index: Int) -> Unit,
+    onClickItem: (expenseState: ExpenseState) -> Unit,
     onClickAddCategory: () -> Unit,
 ) {
     Scaffold(
@@ -121,13 +121,13 @@ fun DashboardContent(
             horizontalArrangement = Arrangement.End,
             verticalArrangement = Arrangement.Center,
         ) {
-            itemsIndexed(expenseState) { index, expense ->
+            items(expenseState) { expense ->
                 ProgressItem(
                     title = expense.category,
                     progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
                     amount = expense.spendAmount,
                     budget = expense.budget,
-                    onClick = { onClickItem(index) }
+                    onClick = { onClickItem(expense) }
                 )
             }
         }

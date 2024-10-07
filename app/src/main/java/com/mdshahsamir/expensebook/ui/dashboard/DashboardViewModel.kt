@@ -32,6 +32,8 @@ class DashboardViewModel @Inject constructor(
     private val _showAddCategoryDialog = MutableStateFlow(false)
     val showAddCategoryDialog: StateFlow<Boolean> = _showAddCategoryDialog
 
+    private var selectedExpense = ExpenseState()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             dashboardRepository.getAllCategories().collectLatest { listOfExpenseState ->
@@ -42,12 +44,13 @@ class DashboardViewModel @Inject constructor(
 
     fun processIntent(intent: ExpenseIntent) {
         when(intent) {
-            is ExpenseIntent.Spend -> {}
-            is ExpenseIntent.AddFund -> {}
+            is ExpenseIntent.Spend -> spend(intent)
+            is ExpenseIntent.AddFund -> addFund(intent)
             is ExpenseIntent.AddCategory -> addCategory(intent)
 
             is ExpenseIntent.ShowInputDialog -> {
-
+                selectedExpense = intent.expenseState
+                _showInputDialogState.value = Pair(true, selectedExpense)
             }
 
             ExpenseIntent.HideInputDialog -> _showInputDialogState.value = Pair(false, ExpenseState())
@@ -70,23 +73,26 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-//    private fun addFund(intent: ExpenseIntent.AddFund) {
-//        val expense = listOfExpenses[selectedExpenseStateIndex]
-//        val newBudget = expense.budget + intent.amount
-//        val newValue = expense.copy(
-//            budget = newBudget,
-//            spendAmount = expense.spendAmount.let { if (it < 0) it.plus(intent.amount) else it }
-//        )
-//
-//        listOfExpenses[selectedExpenseStateIndex] = newValue
-//        _listOfExpenseState.value = listOfExpenses
-//    }
-//
-//    private fun spend(intent: ExpenseIntent.Spend) {
-//        val expense = listOfExpenses[selectedExpenseStateIndex]
-//        val newValue = expense.copy(spendAmount = expense.spendAmount + intent.amount)
-//
-//        listOfExpenses[selectedExpenseStateIndex] = newValue
-//        _listOfExpenseState.value = listOfExpenses
-//    }
+    private fun addFund(intent: ExpenseIntent.AddFund) {
+        selectedExpense.let { expense ->
+            val newBudget = expense.budget + intent.amount
+            val newValue = expense.copy(
+                budget = newBudget,
+                spendAmount = expense.spendAmount.let { if (it < 0) it.plus(intent.amount) else it }
+            )
+
+            viewModelScope.launch {
+                dashboardRepository.updateCategory(newValue)
+            }
+        }
+    }
+
+    private fun spend(intent: ExpenseIntent.Spend) {
+        val newValue =
+            selectedExpense.copy(spendAmount = selectedExpense.spendAmount + intent.amount)
+
+        viewModelScope.launch {
+            dashboardRepository.updateCategory(newValue)
+        }
+    }
 }

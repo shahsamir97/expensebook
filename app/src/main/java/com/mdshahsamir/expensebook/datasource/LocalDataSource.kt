@@ -25,7 +25,7 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateCategory(expense: Expense) {
-
+        expenseDao.updateExpenseCategory(expense)
     }
 
     override suspend fun getAllCategories(): Flow<List<Expense>> =

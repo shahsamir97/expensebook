@@ -34,7 +34,16 @@ class DashboardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateCategory(expenseState: ExpenseState) {
-
+        withContext(Dispatchers.IO) {
+            localDataSource.updateCategory(
+                Expense(
+                    uid = expenseState.id,
+                    category = expenseState.category,
+                    budget = expenseState.budget,
+                    spend = expenseState.spendAmount
+                )
+            )
+        }
     }
 
     override suspend fun getAllCategories(): Flow<List<ExpenseState>> = localDataSource.getAllCategories().map { listOfCategories ->
