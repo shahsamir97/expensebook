@@ -1,8 +1,8 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
-import com.mdshahsamir.database.data.Expense
 import com.mdshahsamir.expensebook.datasource.LocalDataSource
 import com.mdshahsamir.expensebook.model.ExpenseState
+import com.mdshahsamir.expensebook.toExpense
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,26 +23,13 @@ class DashboardRepositoryImpl @Inject constructor(
 ): DashboardRepository {
     override suspend fun addCategory(expenseState: ExpenseState) {
         withContext(Dispatchers.IO) {
-            localDataSource.addCategory(
-                Expense(
-                    category = expenseState.category,
-                    budget = expenseState.budget,
-                    spend = expenseState.spendAmount
-                )
-            )
+            localDataSource.addCategory(expenseState.toExpense())
         }
     }
 
     override suspend fun updateCategory(expenseState: ExpenseState) {
         withContext(Dispatchers.IO) {
-            localDataSource.updateCategory(
-                Expense(
-                    uid = expenseState.id,
-                    category = expenseState.category,
-                    budget = expenseState.budget,
-                    spend = expenseState.spendAmount
-                )
-            )
+            localDataSource.updateCategory(expenseState.toExpense())
         }
     }
 
@@ -58,7 +45,9 @@ class DashboardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteCategory(expenseState: ExpenseState) {
-
+        withContext(Dispatchers.IO) {
+            localDataSource.deleteCategory(expenseState.toExpense())
+        }
     }
 
     override suspend fun addTransaction(expenseState: ExpenseState) {

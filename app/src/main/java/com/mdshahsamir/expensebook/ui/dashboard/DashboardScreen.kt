@@ -10,9 +10,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,6 +23,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,6 +55,9 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
         },
         onClickAddCategory = {
             viewModel.processIntent(ExpenseIntent.ShowAddCategoryDialog)
+        },
+        onClickDelete = { expense ->
+            viewModel.processIntent(ExpenseIntent.DeleteCategory(expense))
         }
     )
 
@@ -86,11 +95,40 @@ fun DashboardContent(
     expenseState: List<ExpenseState>,
     onClickItem: (expenseState: ExpenseState) -> Unit,
     onClickAddCategory: () -> Unit,
+    onClickDelete: (expenseState: ExpenseState) -> Unit,
 ) {
+    var showOptionsMenu by rememberSaveable { mutableStateOf(Pair(false, ExpenseState())) }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
+                actions = {
+                    if (showOptionsMenu.first) {
+                        Row {
+                            IconButton(onClick = {
+                                onClickDelete(showOptionsMenu.second)
+                                showOptionsMenu = Pair(false, ExpenseState())
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Edit,
+                                    contentDescription = "Edit",
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                            IconButton(onClick = {
+                                onClickDelete(showOptionsMenu.second)
+                                showOptionsMenu = Pair(false, ExpenseState())
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
         },
@@ -127,7 +165,10 @@ fun DashboardContent(
                     progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
                     amount = expense.spendAmount,
                     budget = expense.budget,
-                    onClick = { onClickItem(expense) }
+                    onClick = { onClickItem(expense) },
+                    onLongClick = {
+                        showOptionsMenu = Pair(true, expense)
+                    }
                 )
             }
         }

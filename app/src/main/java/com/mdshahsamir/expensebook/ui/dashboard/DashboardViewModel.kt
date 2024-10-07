@@ -1,20 +1,14 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
 import com.mdshahsamir.expensebook.model.ExpenseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +25,9 @@ class DashboardViewModel @Inject constructor(
 
     private val _showAddCategoryDialog = MutableStateFlow(false)
     val showAddCategoryDialog: StateFlow<Boolean> = _showAddCategoryDialog
+
+    private val _showOptionsMenu = MutableStateFlow(false)
+    val showOptionsMenu: StateFlow<Boolean> = _showOptionsMenu
 
     private var selectedExpense = ExpenseState()
 
@@ -58,6 +55,8 @@ class DashboardViewModel @Inject constructor(
             ExpenseIntent.ShowAddCategoryDialog -> _showAddCategoryDialog.value = true
 
             ExpenseIntent.HideAddCategoryDialog -> _showAddCategoryDialog.value = false
+
+            is ExpenseIntent.DeleteCategory -> deleteCategory(intent)
         }
     }
 
@@ -70,6 +69,12 @@ class DashboardViewModel @Inject constructor(
 
         viewModelScope.launch {
             dashboardRepository.addCategory(expenseState)
+        }
+    }
+
+    private fun deleteCategory(intent: ExpenseIntent.DeleteCategory) {
+        viewModelScope.launch {
+            dashboardRepository.deleteCategory(intent.expenseState)
         }
     }
 

@@ -32,7 +32,7 @@ class LocalDataSourceImpl @Inject constructor(
         expenseDao.getAllExpenseCategories()
 
     override suspend fun deleteCategory(expense: Expense) {
-
+        expenseDao.deleteCategory(expense)
     }
 
     override suspend fun addTransaction(expense: Expense) {}
