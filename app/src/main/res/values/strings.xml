@@ -3,4 +3,8 @@
     <string name="add_category">Add Category</string>
     <string name="home">Home</string>
     <string name="transactions">Transactions</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="back">Back</string>
 </resources>

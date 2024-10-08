@@ -2,4 +2,15 @@
 <resources>
     <string name="enter_amount">Enter Amount</string>
     <string name="save">Save</string>
+    <string name="spend">Spend</string>
+    <string name="add_fund">Add Fund</string>
+    <string name="enter_title">Enter Title</string>
+    <string name="eg_grocery_home_rent_etc">Eg. Grocery, Home Rent, etc.</string>
+    <string name="enter_budget">Enter Budget</string>
+    <string name="eg_100_200_50">Eg. 100, 200.50</string>
+    <string name="add_category">Add Category</string>
+    <string name="eg_1000_2800_50">Eg. 1000, 2800.50</string>
+    <string name="enter_spend_amount">Enter Spend Amount</string>
+    <string name="eg_200_550_50">Eg. 200, 550.50</string>
+    <string name="update_category">Update Category</string>
 </resources>

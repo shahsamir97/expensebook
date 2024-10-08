@@ -55,7 +55,6 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
     val showAddCategoryDialog by viewModel.showAddCategoryDialog.collectAsStateWithLifecycle()
     var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, ExpenseState())) }
 
-
     DashboardContent(
         expenseState = expenseState,
         onClickItem = { expense ->
@@ -100,15 +99,15 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
     }
 
     if (showUpdateCategory.first) {
-        showUpdateCategory.second.let { expenseState ->
+        showUpdateCategory.second.let { expense ->
             EditCategoryDialog(
-                title = expenseState.category,
-                budget = expenseState.budget,
-                spend = expenseState.spendAmount,
+                title = expense.category,
+                budget = expense.budget,
+                spend = expense.spendAmount,
                 onClose = { showUpdateCategory = Pair(false, ExpenseState()) },
                 onClickUpdateCategory = { title, budget, spend ->
                     val newValue = ExpenseState(
-                        id = expenseState.id,
+                        id = expense.id,
                         category = title,
                         budget = budget,
                         spendAmount = spend
@@ -136,7 +135,12 @@ fun DashboardContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.dashboard),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
                 actions = {
                     if (showOptionsMenu.first) {
                         Row {
@@ -146,7 +150,7 @@ fun DashboardContent(
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Edit,
-                                    contentDescription = "Edit",
+                                    contentDescription = stringResource(R.string.edit),
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                 )
                             }
@@ -156,7 +160,7 @@ fun DashboardContent(
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(R.string.delete),
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                 )
                             }
@@ -170,7 +174,7 @@ fun DashboardContent(
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Delete",
+                                contentDescription = stringResource(R.string.back),
                                 tint = MaterialTheme.colorScheme.onPrimary,
                             )
                         }

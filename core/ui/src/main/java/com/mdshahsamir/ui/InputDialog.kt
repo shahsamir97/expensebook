@@ -50,11 +50,11 @@ fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAdd
                 Spacer(modifier = Modifier.height(6.dp))
                 Row (horizontalArrangement = Arrangement.Center) {
                     Button(onClick = { onClickSpend(amount.toFloat()) }) {
-                        Text(text = "Spend")
+                        Text(text = stringResource(R.string.spend))
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                     Button(onClick = { onClickAddFund(amount.toFloat()) }) {
-                        Text(text = "Add Fund")
+                        Text(text = stringResource(R.string.add_fund))
                     }
                 }
             }
@@ -81,8 +81,8 @@ fun CreateCategoryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text(text = "Enter Title") },
-                    supportingText = { Text("Eg. Grocery, Home Rent, etc.") },
+                    label = { Text(text = stringResource(R.string.enter_title)) },
+                    supportingText = { Text(stringResource(R.string.eg_grocery_home_rent_etc)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true
                 )
@@ -90,13 +90,13 @@ fun CreateCategoryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     value = budget,
                     onValueChange = { budget = it },
-                    label = { Text("Enter Budget") },
-                    supportingText = { Text("Eg. 100, 200.50") },
+                    label = { Text(stringResource(R.string.enter_budget)) },
+                    supportingText = { Text(stringResource(R.string.eg_100_200_50)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Button(onClick = { onClickAddCategory(title, budget.toFloat()) }) {
-                    Text(text = "Add Category")
+                    Text(text = stringResource(R.string.add_category))
                 }
             }
         }
@@ -126,8 +126,8 @@ fun EditCategoryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     value = titleInput,
                     onValueChange = { titleInput = it },
-                    label = { Text(text = "Enter Title") },
-                    supportingText = { Text("Eg. Grocery, Home Rent, etc.") },
+                    label = { Text(text = stringResource(R.string.enter_title)) },
+                    supportingText = { Text(stringResource(R.string.eg_grocery_home_rent_etc)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true
                 )
@@ -135,21 +135,21 @@ fun EditCategoryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     value = budgetInput,
                     onValueChange = { budgetInput = it },
-                    label = { Text("Enter Budget") },
-                    supportingText = { Text("Eg. 1000, 2800.50") },
+                    label = { Text(stringResource(R.string.enter_budget)) },
+                    supportingText = { Text(stringResource(R.string.eg_1000_2800_50)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = spendAmountInput,
                     onValueChange = { spendAmountInput = it },
-                    label = { Text("Enter Spend Amount") },
-                    supportingText = { Text("Eg. 200, 550.50") },
+                    label = { Text(stringResource(R.string.enter_spend_amount)) },
+                    supportingText = { Text(stringResource(R.string.eg_200_550_50)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Button(onClick = { onClickUpdateCategory(titleInput, budgetInput.toFloat(), spendAmountInput.toFloat()) }) {
-                    Text(text = "Update Category")
+                    Text(text = stringResource(R.string.update_category))
                 }
             }
         }
