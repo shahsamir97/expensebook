@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Expense Book</string>
     <string name="add_category">Add Category</string>
+    <string name="home">Home</string>
+    <string name="transactions">Transactions</string>
 </resources>
