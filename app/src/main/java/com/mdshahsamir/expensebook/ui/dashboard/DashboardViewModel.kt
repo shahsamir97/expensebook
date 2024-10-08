@@ -57,6 +57,7 @@ class DashboardViewModel @Inject constructor(
             ExpenseIntent.HideAddCategoryDialog -> _showAddCategoryDialog.value = false
 
             is ExpenseIntent.DeleteCategory -> deleteCategory(intent)
+            is ExpenseIntent.UpdateCategory -> updateCategory(intent)
         }
     }
 
@@ -75,6 +76,12 @@ class DashboardViewModel @Inject constructor(
     private fun deleteCategory(intent: ExpenseIntent.DeleteCategory) {
         viewModelScope.launch {
             dashboardRepository.deleteCategory(intent.expenseState)
+        }
+    }
+
+    private fun updateCategory(intent: ExpenseIntent.UpdateCategory) {
+        viewModelScope.launch {
+            dashboardRepository.updateCategory(intent.expenseState)
         }
     }
 

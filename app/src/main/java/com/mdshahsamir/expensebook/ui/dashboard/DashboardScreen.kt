@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -38,6 +39,7 @@ import com.mdshahsamir.expensebook.convertToProgressBarValue
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
 import com.mdshahsamir.expensebook.model.ExpenseState
 import com.mdshahsamir.ui.CreateCategoryDialog
+import com.mdshahsamir.ui.EditCategoryDialog
 import com.mdshahsamir.ui.InputDialog
 import com.mdshahsamir.ui.ProgressItem
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
@@ -47,6 +49,8 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
     val expenseState by viewModel.listOfExpenseState.collectAsStateWithLifecycle()
     val showInputDialogState by viewModel.showInputDialogState.collectAsStateWithLifecycle()
     val showAddCategoryDialog by viewModel.showAddCategoryDialog.collectAsStateWithLifecycle()
+    var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, ExpenseState())) }
+
 
     DashboardContent(
         expenseState = expenseState,
@@ -58,6 +62,9 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
         },
         onClickDelete = { expense ->
             viewModel.processIntent(ExpenseIntent.DeleteCategory(expense))
+        },
+        onClickUpdateCategory = { expense ->
+            showUpdateCategory = Pair(true, expense)
         }
     )
 
@@ -87,6 +94,28 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
             onClose = { viewModel.processIntent(ExpenseIntent.HideAddCategoryDialog) }
         )
     }
+
+    if (showUpdateCategory.first) {
+        showUpdateCategory.second.let { expenseState ->
+            EditCategoryDialog(
+                title = expenseState.category,
+                budget = expenseState.budget,
+                spend = expenseState.spendAmount,
+                onClose = { showUpdateCategory = Pair(false, ExpenseState()) },
+                onClickUpdateCategory = { title, budget, spend ->
+                    val newValue = ExpenseState(
+                        id = expenseState.id,
+                        category = title,
+                        budget = budget,
+                        spendAmount = spend
+                    )
+
+                    viewModel.processIntent(ExpenseIntent.UpdateCategory(newValue))
+                    showUpdateCategory = Pair(false, ExpenseState())
+                }
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,6 +125,7 @@ fun DashboardContent(
     onClickItem: (expenseState: ExpenseState) -> Unit,
     onClickAddCategory: () -> Unit,
     onClickDelete: (expenseState: ExpenseState) -> Unit,
+    onClickUpdateCategory: (expenseState: ExpenseState) -> Unit,
 ) {
     var showOptionsMenu by rememberSaveable { mutableStateOf(Pair(false, ExpenseState())) }
 
@@ -107,7 +137,7 @@ fun DashboardContent(
                     if (showOptionsMenu.first) {
                         Row {
                             IconButton(onClick = {
-                                onClickDelete(showOptionsMenu.second)
+                                onClickUpdateCategory(showOptionsMenu.second)
                                 showOptionsMenu = Pair(false, ExpenseState())
                             }) {
                                 Icon(
@@ -126,6 +156,19 @@ fun DashboardContent(
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                 )
                             }
+                        }
+                    }
+                },
+                navigationIcon = {
+                    if (showOptionsMenu.first) {
+                        IconButton(onClick = {
+                            showOptionsMenu = Pair(false, ExpenseState())
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Delete",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                            )
                         }
                     }
                 },
@@ -168,7 +211,8 @@ fun DashboardContent(
                     onClick = { onClickItem(expense) },
                     onLongClick = {
                         showOptionsMenu = Pair(true, expense)
-                    }
+                    },
+                    isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
                 )
             }
         }

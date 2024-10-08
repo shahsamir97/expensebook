@@ -103,6 +103,59 @@ fun CreateCategoryDialog(
     }
 }
 
+@Composable
+fun EditCategoryDialog(
+    title: String,
+    budget: Float,
+    spend: Float,
+    onClickUpdateCategory: (title: String, budget: Float, spend: Float) -> Unit,
+    onClose: () -> Unit
+) {
+    var titleInput by rememberSaveable { mutableStateOf(title) }
+    var budgetInput by rememberSaveable { mutableStateOf(budget.toString()) }
+    var spendAmountInput by rememberSaveable { mutableStateOf(spend.toString()) }
+
+    Dialog(onDismissRequest = onClose) {
+        Card {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = titleInput,
+                    onValueChange = { titleInput = it },
+                    label = { Text(text = "Enter Title") },
+                    supportingText = { Text("Eg. Grocery, Home Rent, etc.") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    singleLine = true
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = budgetInput,
+                    onValueChange = { budgetInput = it },
+                    label = { Text("Enter Budget") },
+                    supportingText = { Text("Eg. 1000, 2800.50") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = spendAmountInput,
+                    onValueChange = { spendAmountInput = it },
+                    label = { Text("Enter Spend Amount") },
+                    supportingText = { Text("Eg. 200, 550.50") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Button(onClick = { onClickUpdateCategory(titleInput, budgetInput.toFloat(), spendAmountInput.toFloat()) }) {
+                    Text(text = "Update Category")
+                }
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun InputDialogPreview() {
@@ -122,6 +175,20 @@ fun CreateCategoryDialogPreview() {
     ExpenseBookTheme {
         CreateCategoryDialog(
             onClickAddCategory = { _,_-> },
+            onClose = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+fun EditCategoryDialogPreview() {
+    ExpenseBookTheme {
+        EditCategoryDialog(
+            title = "",
+            budget = 0f,
+            spend = 0f,
+            onClickUpdateCategory = { _, _, _-> },
             onClose = {},
         )
     }

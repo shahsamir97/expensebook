@@ -22,14 +22,27 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProgressItem(title: String, progress: Float,
-    amount: Float, budget: Float,
-    onClick: () -> Unit, onLongClick: () -> Unit,
+fun ProgressItem(
+    title: String,
+    progress: Float,
+    amount: Float,
+    budget: Float,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    isSelected: Boolean,
 ) {
-    ElevatedCard(
-        modifier = Modifier.padding(8.dp).fillMaxSize()
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
-        colors = CardDefaults.elevatedCardColors(),
+    ElevatedCard (
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxSize()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+            else MaterialTheme.colorScheme.surfaceContainer
+        ),
     ) {
         Column(
             modifier = Modifier
@@ -61,5 +74,6 @@ fun ProgressItemPreview() {
         budget = 200f,
         onClick = {},
         onLongClick = {},
+        isSelected = false
     )
 }
