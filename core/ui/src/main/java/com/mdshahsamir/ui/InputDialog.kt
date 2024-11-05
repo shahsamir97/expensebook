@@ -31,6 +31,7 @@ import com.mdshahsamir.ui.theme.ExpenseBookTheme
 @Composable
 fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAddFund: (amount: Float) -> Unit, onClose: () -> Unit) {
     var amount by rememberSaveable { mutableStateOf("") }
+    var isError by rememberSaveable { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onClose) {
         Card {
@@ -45,15 +46,42 @@ fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAdd
                     value = amount,
                     onValueChange = { amount = it },
                     label = { Text(stringResource(R.string.enter_amount)) },
+                    isError = isError,
+                    supportingText = {
+                        if (isError) {
+                            Text(
+                                text = "Please enter a valid number!",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Row (horizontalArrangement = Arrangement.Center) {
-                    Button(onClick = { onClickSpend(amount.toFloat()) }) {
+                    Button(onClick = {
+                        try {
+                            isError = false
+                            onClickSpend(amount.toFloat())
+                        } catch (e:Exception) {
+                            isError = true
+                            e.printStackTrace()
+                        }
+
+                    }) {
                         Text(text = stringResource(R.string.spend))
                     }
                     Spacer(modifier = Modifier.width(6.dp))
-                    Button(onClick = { onClickAddFund(amount.toFloat()) }) {
+                    Button(onClick = {
+                        try {
+                            onClickAddFund(amount.toFloat())
+                            isError = false
+                        } catch (e: Exception) {
+                            isError = true
+                            e.printStackTrace()
+                        }
+                    }
+                    ) {
                         Text(text = stringResource(R.string.add_fund))
                     }
                 }
