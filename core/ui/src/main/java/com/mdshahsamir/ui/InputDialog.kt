@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,7 @@ fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAdd
                     supportingText = {
                         if (isError) {
                             Text(
-                                text = "Please enter a valid number!",
+                                text = stringResource(R.string.please_enter_a_valid_number),
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
@@ -97,6 +98,7 @@ fun CreateCategoryDialog(
 ) {
     var title by rememberSaveable { mutableStateOf("") }
     var budget by rememberSaveable { mutableStateOf("") }
+    var isError by rememberSaveable { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onClose) {
         Card {
@@ -111,7 +113,10 @@ fun CreateCategoryDialog(
                     onValueChange = { title = it },
                     label = { Text(text = stringResource(R.string.enter_title)) },
                     supportingText = { Text(stringResource(R.string.eg_grocery_home_rent_etc)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next,
+                    ),
                     singleLine = true
                 )
                 TextField(
@@ -119,11 +124,32 @@ fun CreateCategoryDialog(
                     value = budget,
                     onValueChange = { budget = it },
                     label = { Text(stringResource(R.string.enter_budget)) },
-                    supportingText = { Text(stringResource(R.string.eg_100_200_50)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText = {
+                        if (isError) {
+                            Text(
+                                text = stringResource(R.string.please_enter_a_valid_number),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            Text(stringResource(R.string.eg_100_200_50))
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Button(onClick = { onClickAddCategory(title, budget.toFloat()) }) {
+                Button(onClick = {
+                    try {
+                        onClickAddCategory(title, budget.toFloat())
+                        isError = false
+                    } catch (e: Exception) {
+                        isError = true
+                    }
+                }
+                ) {
                     Text(text = stringResource(R.string.add_category))
                 }
             }
