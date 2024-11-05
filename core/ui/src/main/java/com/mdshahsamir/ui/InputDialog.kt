@@ -57,7 +57,10 @@ fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAdd
                             )
                         }
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Row (horizontalArrangement = Arrangement.Center) {
