@@ -1,14 +1,15 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -54,7 +55,7 @@ fun DashboardScreen(
     var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
 
     DashboardContent(
-        expense = expenseState,
+        expenseList = expenseState,
         onClickItem = { expense ->
             viewModel.processIntent(ExpenseIntent.ShowInputDialog(expense))
         },
@@ -122,7 +123,7 @@ fun DashboardScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
-    expense: List<Expense>,
+    expenseList: List<Expense>,
     onClickItem: (expense: Expense) -> Unit,
     onClickAddCategory: () -> Unit,
     onClickDelete: (expense: Expense) -> Unit,
@@ -201,14 +202,14 @@ fun DashboardContent(
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { contentPadding ->
-            LazyVerticalGrid(
+            LazyVerticalStaggeredGrid(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(contentPadding)
-                    .padding(16.dp),
-                columns = GridCells.Fixed(2),
+                    .padding(top = contentPadding.calculateTopPadding()),
+                contentPadding = PaddingValues(16.dp),
+                columns = StaggeredGridCells.Fixed(2),
             ) {
-                items(expense) { expense ->
+                items(expenseList) { expense ->
                     ProgressItem(
                         title = expense.category,
                         progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
@@ -230,7 +231,7 @@ fun DashboardContent(
 internal fun DashboardScreenPreview() {
     ExpenseBookTheme {
         DashboardContent(
-            expense = listOf(
+            expenseList = listOf(
                 Expense(spendAmount = 500f, budget = 1000f),
                 Expense(spendAmount = 400f, budget = 4500f)
             ),

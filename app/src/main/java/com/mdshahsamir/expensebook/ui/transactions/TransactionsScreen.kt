@@ -2,6 +2,7 @@ package com.mdshahsamir.expensebook.ui.transactions
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,8 +53,9 @@ fun TransactionsScreen(transactionsState: TransactionsState) {
     ) {
         LazyColumn(modifier = Modifier
             .fillMaxSize()
-            .padding(it)
-            .padding(16.dp)) {
+            .padding(top = it.calculateTopPadding()),
+            contentPadding = PaddingValues(16.dp)
+            ) {
             items(transactionsState.list) { transactionData ->
                 TransactionListItem(transactionData)
                 Spacer(modifier = Modifier.height(8.dp))

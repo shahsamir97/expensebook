@@ -1,5 +1,6 @@
 package com.mdshahsamir.expensebook.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -10,11 +11,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.navigation.AppNavigation
@@ -23,28 +26,28 @@ import com.mdshahsamir.expensebook.navigation.NavigationScreen
 @Composable
 fun ExpenseBookApp() {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
-        topBar = {},
-        bottomBar = { BottomNavigation(navController) }
-    ) { contentPadding ->
-        Modifier.padding(contentPadding)
-
-        Box(modifier = Modifier.padding(contentPadding)) {
+        bottomBar = { BottomNavigation(navController = navController, currentRoute = currentRoute) }
+    ) {
+        Box(modifier = Modifier.padding(bottom = it.calculateBottomPadding())) {
             AppNavigation(navHostController = navController)
         }
     }
 }
 
 @Composable
-fun BottomNavigation(navController: NavController) {
+fun BottomNavigation(navController: NavController, currentRoute: String?) {
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.surfaceBright,
         ) {
         NavigationBarItem(
-            selected = navController.currentDestination?.route.equals(NavigationScreen.Dashboard.route),
+            selected =  NavigationScreen.Dashboard.route == currentRoute,
             onClick = {
                 navController.navigate(NavigationScreen.Dashboard.route)
+                Log.i("Current Destination:::", navController.currentDestination?.route.toString())
             },
             icon = {
                 Icon(
@@ -56,8 +59,9 @@ fun BottomNavigation(navController: NavController) {
             label = { Text(text = stringResource(R.string.home), style = MaterialTheme.typography.labelLarge) }
         )
         NavigationBarItem(
-            selected = navController.currentDestination?.route.equals(NavigationScreen.Transactions.route),
+            selected = NavigationScreen.Transactions.route == currentRoute,
             onClick = {
+                Log.i("Current Destination:::", navController.currentDestination?.route.toString())
                 navController.navigate(NavigationScreen.Transactions.route)
             },
             icon = {
