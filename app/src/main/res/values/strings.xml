@@ -7,4 +7,5 @@
     <string name="delete">Delete</string>
     <string name="dashboard">Dashboard</string>
     <string name="back">Back</string>
+    <string name="category_colon_x">Category: %1$s</string>
 </resources>

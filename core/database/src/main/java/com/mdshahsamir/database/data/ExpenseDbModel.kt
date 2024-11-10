@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Expense(
+data class ExpenseDbModel(
     @PrimaryKey(autoGenerate = true) val uid: Long = 0,
     @ColumnInfo(name = "category")
     val category: String,

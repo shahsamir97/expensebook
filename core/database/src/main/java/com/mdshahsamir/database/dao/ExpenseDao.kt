@@ -5,20 +5,20 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.mdshahsamir.database.data.Expense
+import com.mdshahsamir.database.data.ExpenseDbModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseDao {
-    @Query("Select * from expense")
-    fun getAllExpenseCategories(): Flow<List<Expense>>
+    @Query("Select * from ExpenseDbModel")
+    fun getAllExpenseCategories(): Flow<List<ExpenseDbModel>>
 
     @Insert
-    fun addExpenseCategory(expense: Expense)
+    fun addExpenseCategory(expenseDbModel: ExpenseDbModel)
 
     @Update
-    fun updateExpenseCategory(expense: Expense)
+    fun updateExpenseCategory(expenseDbModel: ExpenseDbModel)
 
     @Delete
-    fun deleteCategory(expense: Expense)
+    fun deleteCategory(expenseDbModel: ExpenseDbModel)
 }

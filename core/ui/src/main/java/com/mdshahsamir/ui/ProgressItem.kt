@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +32,7 @@ fun ProgressItem(
     onLongClick: () -> Unit,
     isSelected: Boolean,
 ) {
-    ElevatedCard (
+    Card (
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize()
@@ -41,9 +41,10 @@ fun ProgressItem(
                 onLongClick = onLongClick
             ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surfaceContainer
+            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant
+            else MaterialTheme.colorScheme.surface
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             modifier = Modifier

@@ -2,17 +2,19 @@ package com.mdshahsamir.expensebook.datasource
 
 import com.mdshahsamir.database.dao.ExpenseDao
 import com.mdshahsamir.database.dao.TransactionDao
-import com.mdshahsamir.database.data.Expense
+import com.mdshahsamir.database.data.ExpenseDbModel
+import com.mdshahsamir.database.data.Transaction
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface LocalDataSource {
-    suspend fun addCategory(expense: Expense)
-    suspend fun updateCategory(expense: Expense)
-    suspend fun getAllCategories(): Flow<List<Expense>>
-    suspend fun deleteCategory(expense: Expense)
-    suspend fun addTransaction(expense: Expense)
-    suspend fun deleteTransaction(expense: Expense)
+    suspend fun addCategory(expenseDbModel: ExpenseDbModel)
+    suspend fun updateCategory(expenseDbModel: ExpenseDbModel)
+    suspend fun getAllCategories(): Flow<List<ExpenseDbModel>>
+    suspend fun deleteCategory(expenseDbModel: ExpenseDbModel)
+    suspend fun getAllTransaction(): Flow<List<Transaction>>
+    suspend fun addTransaction(transaction: Transaction)
+    suspend fun deleteTransaction(transaction: Transaction)
 }
 
 class LocalDataSourceImpl @Inject constructor(
@@ -20,22 +22,26 @@ class LocalDataSourceImpl @Inject constructor(
     private val transactionDao: TransactionDao,
 ): LocalDataSource {
 
-    override suspend fun addCategory(expense: Expense) {
-        expenseDao.addExpenseCategory(expense)
+    override suspend fun addCategory(expenseDbModel: ExpenseDbModel) {
+        expenseDao.addExpenseCategory(expenseDbModel)
     }
 
-    override suspend fun updateCategory(expense: Expense) {
-        expenseDao.updateExpenseCategory(expense)
+    override suspend fun updateCategory(expenseDbModel: ExpenseDbModel) {
+        expenseDao.updateExpenseCategory(expenseDbModel)
     }
 
-    override suspend fun getAllCategories(): Flow<List<Expense>> =
+    override suspend fun getAllCategories(): Flow<List<ExpenseDbModel>> =
         expenseDao.getAllExpenseCategories()
 
-    override suspend fun deleteCategory(expense: Expense) {
-        expenseDao.deleteCategory(expense)
-    }
+    override suspend fun deleteCategory(expenseDbModel: ExpenseDbModel) =
+        expenseDao.deleteCategory(expenseDbModel)
 
-    override suspend fun addTransaction(expense: Expense) {}
+    override suspend fun getAllTransaction(): Flow<List<Transaction>> =
+        transactionDao.getAllTransaction()
 
-    override suspend fun deleteTransaction(expense: Expense) {}
+    override suspend fun addTransaction(transaction: Transaction) =
+        transactionDao.addTransaction(transaction)
+
+    override suspend fun deleteTransaction(transaction: Transaction) =
+        transactionDao.deleteTransaction(transaction)
 }

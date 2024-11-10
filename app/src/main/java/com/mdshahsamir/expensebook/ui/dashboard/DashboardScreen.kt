@@ -1,10 +1,10 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,13 +14,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,16 +30,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.convertToProgressBarValue
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
-import com.mdshahsamir.expensebook.model.ExpenseState
+import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.ui.CreateCategoryDialog
 import com.mdshahsamir.ui.EditCategoryDialog
 import com.mdshahsamir.ui.InputDialog
@@ -49,14 +45,16 @@ import com.mdshahsamir.ui.ProgressItem
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
 
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
-    val expenseState by viewModel.listOfExpenseState.collectAsStateWithLifecycle()
+fun DashboardScreen(
+    viewModel: DashboardViewModel
+) {
+    val expenseState by viewModel.listOfExpense.collectAsStateWithLifecycle()
     val showInputDialogState by viewModel.showInputDialogState.collectAsStateWithLifecycle()
     val showAddCategoryDialog by viewModel.showAddCategoryDialog.collectAsStateWithLifecycle()
-    var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, ExpenseState())) }
+    var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
 
     DashboardContent(
-        expenseState = expenseState,
+        expense = expenseState,
         onClickItem = { expense ->
             viewModel.processIntent(ExpenseIntent.ShowInputDialog(expense))
         },
@@ -68,7 +66,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
         },
         onClickUpdateCategory = { expense ->
             showUpdateCategory = Pair(true, expense)
-        }
+        },
     )
 
     if (showInputDialogState.first) {
@@ -104,9 +102,9 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
                 title = expense.category,
                 budget = expense.budget,
                 spend = expense.spendAmount,
-                onClose = { showUpdateCategory = Pair(false, ExpenseState()) },
+                onClose = { showUpdateCategory = Pair(false, Expense()) },
                 onClickUpdateCategory = { title, budget, spend ->
-                    val newValue = ExpenseState(
+                    val newValue = Expense(
                         id = expense.id,
                         category = title,
                         budget = budget,
@@ -114,7 +112,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
                     )
 
                     viewModel.processIntent(ExpenseIntent.UpdateCategory(newValue))
-                    showUpdateCategory = Pair(false, ExpenseState())
+                    showUpdateCategory = Pair(false, Expense())
                 }
             )
         }
@@ -124,17 +122,18 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
-    expenseState: List<ExpenseState>,
-    onClickItem: (expenseState: ExpenseState) -> Unit,
+    expense: List<Expense>,
+    onClickItem: (expense: Expense) -> Unit,
     onClickAddCategory: () -> Unit,
-    onClickDelete: (expenseState: ExpenseState) -> Unit,
-    onClickUpdateCategory: (expenseState: ExpenseState) -> Unit,
+    onClickDelete: (expense: Expense) -> Unit,
+    onClickUpdateCategory: (expense: Expense) -> Unit,
 ) {
-    var showOptionsMenu by rememberSaveable { mutableStateOf(Pair(false, ExpenseState())) }
+    var showOptionsMenu by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
 
     Scaffold(
         topBar = {
             TopAppBar(
+                modifier = Modifier.defaultMinSize(),
                 title = {
                     Text(
                         text = stringResource(R.string.dashboard),
@@ -146,7 +145,7 @@ fun DashboardContent(
                         Row {
                             IconButton(onClick = {
                                 onClickUpdateCategory(showOptionsMenu.second)
-                                showOptionsMenu = Pair(false, ExpenseState())
+                                showOptionsMenu = Pair(false, Expense())
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Edit,
@@ -156,7 +155,7 @@ fun DashboardContent(
                             }
                             IconButton(onClick = {
                                 onClickDelete(showOptionsMenu.second)
-                                showOptionsMenu = Pair(false, ExpenseState())
+                                showOptionsMenu = Pair(false, Expense())
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
@@ -170,7 +169,7 @@ fun DashboardContent(
                 navigationIcon = {
                     if (showOptionsMenu.first) {
                         IconButton(onClick = {
-                            showOptionsMenu = Pair(false, ExpenseState())
+                            showOptionsMenu = Pair(false, Expense())
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -183,12 +182,8 @@ fun DashboardContent(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
         },
-        bottomBar = {
-            BottomNavigation()
-        },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(12.dp),
                 onClick = onClickAddCategory
             ) {
                 Row(
@@ -203,60 +198,30 @@ fun DashboardContent(
                     Text(text = stringResource(id = R.string.add_category))
                 }
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { contentPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier
-                .padding(contentPadding)
-                .padding(16.dp),
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.End,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            items(expenseState) { expense ->
-                ProgressItem(
-                    title = expense.category,
-                    progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
-                    amount = expense.spendAmount,
-                    budget = expense.budget,
-                    onClick = { onClickItem(expense) },
-                    onLongClick = {
-                        showOptionsMenu = Pair(true, expense)
-                    },
-                    isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
-                )
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+                    .padding(16.dp),
+                columns = GridCells.Fixed(2),
+            ) {
+                items(expense) { expense ->
+                    ProgressItem(
+                        title = expense.category,
+                        progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
+                        amount = expense.spendAmount,
+                        budget = expense.budget,
+                        onClick = { onClickItem(expense) },
+                        onLongClick = {
+                            showOptionsMenu = Pair(true, expense)
+                        },
+                        isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
+                    )
+                }
             }
-        }
-    }
-}
-
-@Composable
-fun BottomNavigation() {
-    BottomAppBar {
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = {
-                Icon(
-                    modifier = Modifier.size(30.dp),
-                    painter = painterResource(R.drawable.ic_home),
-                    contentDescription = stringResource(R.string.home)
-                )
-            },
-            label = { Text(text = stringResource(R.string.home), style = MaterialTheme.typography.labelLarge) }
-        )
-        NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = {
-                Icon(
-                    modifier = Modifier.size(30.dp),
-                    painter = painterResource(R.drawable.ic_statement),
-                    contentDescription = stringResource(R.string.transactions)
-                )
-            },
-            label = { Text(text = stringResource(R.string.transactions), style = MaterialTheme.typography.labelLarge) }
-        )
     }
 }
 
@@ -265,9 +230,9 @@ fun BottomNavigation() {
 internal fun DashboardScreenPreview() {
     ExpenseBookTheme {
         DashboardContent(
-            expenseState = listOf(
-                ExpenseState(spendAmount = 500f, budget = 1000f),
-                ExpenseState(spendAmount = 400f, budget = 4500f)
+            expense = listOf(
+                Expense(spendAmount = 500f, budget = 1000f),
+                Expense(spendAmount = 400f, budget = 4500f)
             ),
             onClickItem = {},
             onClickAddCategory = {},
