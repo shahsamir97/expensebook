@@ -1,9 +1,9 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
+import com.mdshahsamir.expensebook.isWithinLastDays
 import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.expensebook.model.TransactionData
 import com.mdshahsamir.expensebook.model.TransactionMode
@@ -47,10 +47,19 @@ class DashboardViewModel @Inject constructor(
             }
         }
 
+        retrieveTransactions()
+    }
+
+    private fun retrieveTransactions() {
         viewModelScope.launch(Dispatchers.IO) {
             dashboardRepository.getAllTransaction().collectLatest { listOfTransactions ->
-                Log.i("Transactions:::", listOfTransactions.toString())
-                _transactionState.update { it.copy(list = listOfTransactions) }
+                _transactionState.update {
+                    it.copy(list = listOfTransactions.filter {
+                        it.time.isWithinLastDays(
+                            transactionState.value.selectedFilter
+                        )
+                    })
+                }
             }
         }
     }
@@ -151,6 +160,24 @@ class DashboardViewModel @Inject constructor(
                 showDeleteOption = false,
                 selectedTransaction = TransactionData.DefaultData,
             )
+        }
+    }
+
+    override fun filterTransaction(filter: Int) {
+        if (filter == transactionState.value.selectedFilter) {
+            retrieveTransactions()
+            _transactionState.update {
+                it.copy(
+                    selectedFilter = TransactionsState.DefaultState.selectedFilter
+                )
+            }
+        } else {
+            retrieveTransactions()
+            _transactionState.update {
+                it.copy(
+                    selectedFilter = filter
+                )
+            }
         }
     }
 }

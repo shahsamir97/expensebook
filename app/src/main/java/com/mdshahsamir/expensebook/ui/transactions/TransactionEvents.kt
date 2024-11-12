@@ -6,4 +6,5 @@ interface TransactionEvents {
     fun selectTransaction(transactionData: TransactionData)
     fun deleteTransaction()
     fun onPressBack()
+    fun filterTransaction(filter: Int)
 }

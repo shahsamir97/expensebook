@@ -6,12 +6,14 @@ data class TransactionsState(
     val list: List<TransactionData>,
     val selectedTransaction: TransactionData,
     val showDeleteOption: Boolean,
+    val selectedFilter: Int,
 ) {
     companion object {
         val DefaultState = TransactionsState(
             list = emptyList(),
             selectedTransaction = TransactionData.DefaultData,
-            showDeleteOption = false
+            showDeleteOption = false,
+            selectedFilter = Int.MAX_VALUE
         )
     }
 }
