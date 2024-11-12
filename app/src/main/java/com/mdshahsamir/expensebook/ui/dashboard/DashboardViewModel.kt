@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
 import com.mdshahsamir.expensebook.model.Expense
+import com.mdshahsamir.expensebook.model.TransactionData
 import com.mdshahsamir.expensebook.model.TransactionMode
+import com.mdshahsamir.expensebook.ui.transactions.TransactionEvents
 import com.mdshahsamir.expensebook.ui.transactions.TransactionsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository
-) : ViewModel() {
+) : ViewModel(), TransactionEvents {
 
     private val _listOfExpense = MutableStateFlow(listOf<Expense>())
     val listOfExpense: StateFlow<List<Expense>> = _listOfExpense
@@ -121,6 +123,34 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             dashboardRepository.updateCategory(newValue)
             dashboardRepository.addTransaction(newValue, TransactionMode.SPEND, intent.amount)
+        }
+    }
+
+    override fun selectTransaction(transactionData: TransactionData) {
+        _transactionState.update {
+            it.copy(
+                selectedTransaction = transactionData,
+                showDeleteOption = true,
+            )
+        }
+    }
+
+    override fun deleteTransaction() {
+        viewModelScope.launch {
+            dashboardRepository.deleteTransaction(transactionState.value.selectedTransaction.transactionId)
+            _transactionState.update { it.copy(
+                showDeleteOption = false,
+                selectedTransaction = TransactionData.DefaultData,
+            ) }
+        }
+    }
+
+    override fun onPressBack() {
+        _transactionState.update {
+            it.copy(
+                showDeleteOption = false,
+                selectedTransaction = TransactionData.DefaultData,
+            )
         }
     }
 }

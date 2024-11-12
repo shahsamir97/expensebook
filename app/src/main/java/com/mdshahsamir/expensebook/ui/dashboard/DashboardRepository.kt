@@ -26,7 +26,7 @@ interface DashboardRepository {
         transactionAmount: Float,
     )
 
-    suspend fun deleteTransaction(expense: Expense)
+    suspend fun deleteTransaction(transactionId: Long)
 }
 
 class DashboardRepositoryImpl @Inject constructor(
@@ -92,16 +92,9 @@ class DashboardRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteTransaction(expense: Expense) {
+    override suspend fun deleteTransaction(transactionId: Long) {
         withContext(Dispatchers.IO) {
-            localDataSource.deleteTransaction(
-                Transaction(
-                    amount = expense.spendAmount,
-                    category = expense.category,
-                    time = System.currentTimeMillis(),
-                    type = ""
-                )
-            )
+            localDataSource.deleteTransaction(transactionId)
         }
     }
 }

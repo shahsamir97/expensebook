@@ -8,7 +8,17 @@ data class TransactionData(
     val category: String,
     val type: String,
     val time: String,
-)
+) {
+    companion object {
+        val DefaultData = TransactionData(
+            transactionId = -1,
+            time = "",
+            category = "",
+            amount = 0f,
+            type = ""
+        )
+    }
+}
 
 @StringDef(TransactionMode.FUND_ADDED, TransactionMode.SPEND)
 annotation class TransactionType

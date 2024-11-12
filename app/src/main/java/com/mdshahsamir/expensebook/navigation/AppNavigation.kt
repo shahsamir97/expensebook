@@ -24,7 +24,7 @@ fun AppNavigation(navHostController: NavHostController) {
         composable(NavigationScreen.Transactions.route) {
             val state by viewModel.transactionState.collectAsStateWithLifecycle()
 
-            TransactionsScreen(state)
+            TransactionsScreen(state, viewModel)
         }
     }
 }

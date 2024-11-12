@@ -14,7 +14,7 @@ interface LocalDataSource {
     suspend fun deleteCategory(expenseDbModel: ExpenseDbModel)
     suspend fun getAllTransaction(): Flow<List<Transaction>>
     suspend fun addTransaction(transaction: Transaction)
-    suspend fun deleteTransaction(transaction: Transaction)
+    suspend fun deleteTransaction(transactionId: Long)
 }
 
 class LocalDataSourceImpl @Inject constructor(
@@ -42,6 +42,6 @@ class LocalDataSourceImpl @Inject constructor(
     override suspend fun addTransaction(transaction: Transaction) =
         transactionDao.addTransaction(transaction)
 
-    override suspend fun deleteTransaction(transaction: Transaction) =
-        transactionDao.deleteTransaction(transaction)
+    override suspend fun deleteTransaction(transactionId: Long) =
+        transactionDao.deleteTransaction(transactionId)
 }

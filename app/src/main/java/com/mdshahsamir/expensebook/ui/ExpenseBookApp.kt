@@ -1,6 +1,5 @@
 package com.mdshahsamir.expensebook.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,8 +45,9 @@ fun BottomNavigation(navController: NavController, currentRoute: String?) {
         NavigationBarItem(
             selected =  NavigationScreen.Dashboard.route == currentRoute,
             onClick = {
-                navController.navigate(NavigationScreen.Dashboard.route)
-                Log.i("Current Destination:::", navController.currentDestination?.route.toString())
+                navController.navigate(NavigationScreen.Dashboard.route) {
+                    launchSingleTop = true
+                }
             },
             icon = {
                 Icon(
@@ -61,8 +61,9 @@ fun BottomNavigation(navController: NavController, currentRoute: String?) {
         NavigationBarItem(
             selected = NavigationScreen.Transactions.route == currentRoute,
             onClick = {
-                Log.i("Current Destination:::", navController.currentDestination?.route.toString())
-                navController.navigate(NavigationScreen.Transactions.route)
+                navController.navigate(NavigationScreen.Transactions.route) {
+                    launchSingleTop = true
+                }
             },
             icon = {
                 Icon(

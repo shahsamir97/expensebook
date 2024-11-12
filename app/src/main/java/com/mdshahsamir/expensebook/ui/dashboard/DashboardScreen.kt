@@ -1,5 +1,6 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -202,27 +205,41 @@ fun DashboardContent(
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { contentPadding ->
-            LazyVerticalStaggeredGrid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = contentPadding.calculateTopPadding()),
-                contentPadding = PaddingValues(16.dp),
-                columns = StaggeredGridCells.Fixed(2),
-            ) {
-                items(expenseList) { expense ->
-                    ProgressItem(
-                        title = expense.category,
-                        progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
-                        amount = expense.spendAmount,
-                        budget = expense.budget,
-                        onClick = { onClickItem(expense) },
-                        onLongClick = {
-                            showOptionsMenu = Pair(true, expense)
-                        },
-                        isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
-                    )
+        Box(modifier = Modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding())) {
+            if (expenseList.isEmpty()) {
+                Text(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(R.string.add_a_category_with_budget),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                LazyVerticalStaggeredGrid(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    columns = StaggeredGridCells.Fixed(2),
+                ) {
+                    items(expenseList) { expense ->
+                        ProgressItem(
+                            title = expense.category,
+                            progress = convertToProgressBarValue(
+                                expense.spendAmount,
+                                expense.budget
+                            ),
+                            amount = expense.spendAmount,
+                            budget = expense.budget,
+                            onClick = { onClickItem(expense) },
+                            onLongClick = {
+                                showOptionsMenu = Pair(true, expense)
+                            },
+                            isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
+                        )
+                    }
                 }
             }
+        }
     }
 }
 
@@ -232,8 +249,7 @@ internal fun DashboardScreenPreview() {
     ExpenseBookTheme {
         DashboardContent(
             expenseList = listOf(
-                Expense(spendAmount = 500f, budget = 1000f),
-                Expense(spendAmount = 400f, budget = 4500f)
+
             ),
             onClickItem = {},
             onClickAddCategory = {},

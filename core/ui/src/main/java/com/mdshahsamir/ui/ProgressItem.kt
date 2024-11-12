@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -60,11 +61,13 @@ fun ProgressItem(
                 trackColor = MaterialTheme.colorScheme.inversePrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "$amount/$budget", style = MaterialTheme.typography.labelLarge)
+            Text(text = "$amount/$budget", style = MaterialTheme.typography.titleMedium)
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
