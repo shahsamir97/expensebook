@@ -7,4 +7,5 @@ interface TransactionEvents {
     fun deleteTransaction()
     fun onPressBack()
     fun filterTransaction(filter: Int)
+    fun clearAllTransaction()
 }

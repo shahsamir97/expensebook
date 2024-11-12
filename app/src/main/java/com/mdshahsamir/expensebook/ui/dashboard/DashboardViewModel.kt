@@ -40,6 +40,8 @@ class DashboardViewModel @Inject constructor(
 
     private var selectedExpense = Expense()
 
+    private val selectedTransactions = ArrayList<TransactionData>()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             dashboardRepository.getAllCategories().collectLatest { listOfExpenseState ->
@@ -136,21 +138,26 @@ class DashboardViewModel @Inject constructor(
     }
 
     override fun selectTransaction(transactionData: TransactionData) {
-        _transactionState.update {
-            it.copy(
-                selectedTransaction = transactionData,
-                showDeleteOption = true,
-            )
+        viewModelScope.launch {
+            selectedTransactions.add(transactionData)
+            _transactionState.update {
+                it.copy(
+                    selectedTransactions = selectedTransactions,
+                    showDeleteOption = true,
+                )
+            }
         }
     }
 
     override fun deleteTransaction() {
         viewModelScope.launch {
-            dashboardRepository.deleteTransaction(transactionState.value.selectedTransaction.transactionId)
+            dashboardRepository.deleteTransaction(selectedTransactions)
             _transactionState.update { it.copy(
                 showDeleteOption = false,
-                selectedTransaction = TransactionData.DefaultData,
+                selectedTransactions = emptyList(),
             ) }
+
+            selectedTransactions.clear()
         }
     }
 
@@ -158,9 +165,10 @@ class DashboardViewModel @Inject constructor(
         _transactionState.update {
             it.copy(
                 showDeleteOption = false,
-                selectedTransaction = TransactionData.DefaultData,
+                selectedTransactions = emptyList(),
             )
         }
+        selectedTransactions.clear()
     }
 
     override fun filterTransaction(filter: Int) {
@@ -178,6 +186,12 @@ class DashboardViewModel @Inject constructor(
                     selectedFilter = filter
                 )
             }
+        }
+    }
+
+    override fun clearAllTransaction() {
+        viewModelScope.launch {
+            dashboardRepository.deleteTransaction(transactionState.value.list)
         }
     }
 }

@@ -25,6 +25,17 @@ fun Long.toUiDateFormat(): String {
     return sdf.format(date)
 }
 
+fun String.toTimestamp(): Long {
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    return try {
+        val date = sdf.parse(this) // Parse the date string
+        date?.time ?: 0 // Return the timestamp as Long, or null if parsing fails
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
+    }
+}
+
 fun String.isWithinLastDays(days: Int): Boolean {
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val inputDate = sdf.parse(this) ?: return false // Parse the input date or return false if invalid

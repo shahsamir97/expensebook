@@ -14,4 +14,6 @@
     <string name="eg_200_550_50">Eg. 200, 550.50</string>
     <string name="update_category">Update Category</string>
     <string name="please_enter_a_valid_number">Invalid Input! Please enter a valid number.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

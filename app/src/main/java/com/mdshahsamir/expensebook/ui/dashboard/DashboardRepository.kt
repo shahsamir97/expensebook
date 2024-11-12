@@ -6,6 +6,7 @@ import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.expensebook.model.TransactionData
 import com.mdshahsamir.expensebook.model.TransactionType
 import com.mdshahsamir.expensebook.toExpense
+import com.mdshahsamir.expensebook.toTimestamp
 import com.mdshahsamir.expensebook.toUiDateFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +27,7 @@ interface DashboardRepository {
         transactionAmount: Float,
     )
 
-    suspend fun deleteTransaction(transactionId: Long)
+    suspend fun deleteTransaction(transactions: List<TransactionData>)
 }
 
 class DashboardRepositoryImpl @Inject constructor(
@@ -92,9 +93,19 @@ class DashboardRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteTransaction(transactionId: Long) {
+    override suspend fun deleteTransaction(transactions: List<TransactionData>) {
         withContext(Dispatchers.IO) {
-            localDataSource.deleteTransaction(transactionId)
+            localDataSource.deleteTransaction(
+                transactions.map {
+                    Transaction(
+                        transactionId = it.transactionId,
+                        amount = it.amount,
+                        type = it.type,
+                        time = it.time.toTimestamp(),
+                        category = it.category
+                    )
+                }
+            )
         }
     }
 }

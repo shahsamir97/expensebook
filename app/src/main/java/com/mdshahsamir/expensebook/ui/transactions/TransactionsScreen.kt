@@ -52,6 +52,7 @@ import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.TransactionFilterOptions
 import com.mdshahsamir.expensebook.model.TransactionData
 import com.mdshahsamir.expensebook.model.TransactionMode
+import com.mdshahsamir.ui.EbAlertDialog
 import com.mdshahsamir.ui.EbTextView
 import com.mdshahsamir.ui.theme.AddFundColor
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
@@ -63,6 +64,7 @@ import com.mdshahsamir.ui.theme.SpendColor
 fun TransactionsScreen(transactionsState: TransactionsState, events: TransactionEvents) {
 
     var showOptionsMenu by rememberSaveable { mutableStateOf(false) }
+    var showClearTransactionAlert by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -80,14 +82,14 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                             IconButton(onClick = { events.deleteTransaction() }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(R.string.edit),
+                                    contentDescription = stringResource(R.string.delete),
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                 )
                             }
                         }
 
                         Box {
-                            IconButton(onClick = { events.deleteTransaction() }) {
+                            IconButton(onClick = { showOptionsMenu = true }) {
                                 Icon(
                                     imageVector = Icons.Outlined.MoreVert,
                                     contentDescription = stringResource(R.string.edit),
@@ -99,7 +101,16 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                 onDismissRequest = { showOptionsMenu = false }) {
                                 DropdownMenuItem(
                                     text = { Text(text = stringResource(R.string.clear_all_transactions)) },
-                                    onClick = { /*TODO*/ }
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        showClearTransactionAlert = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Delete,
+                                            contentDescription = stringResource(R.string.delete),
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -141,7 +152,7 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                             if (transactionsState.selectedFilter == it) {
                                 Icon(
                                     imageVector = Icons.Outlined.Check,
-                                    contentDescription = stringResource(R.string.back),
+                                    contentDescription = stringResource(id = R.string.filter_by_last_x_days, it),
                                 )
                             }
                         }
@@ -159,6 +170,18 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
             }
         }
     }
+
+    if (showClearTransactionAlert) {
+        EbAlertDialog(
+            title = stringResource(R.string.are_you_sure),
+            bodyText = stringResource(R.string.once_you_delete_all_transaction),
+            onClickConfirm = {
+                events.clearAllTransaction()
+                showClearTransactionAlert = false
+            },
+            onClickDismiss = { showClearTransactionAlert = false }
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -174,7 +197,7 @@ fun TransactionListItem(
             onClick = {}
         ),
         colors = CardDefaults.cardColors(
-            containerColor = if (state.selectedTransaction?.transactionId == transactionData.transactionId) {
+            containerColor = if (state.isTransactionSelected(transactionData)) {
                 MaterialTheme.colorScheme.surfaceVariant
             } else {
                 MaterialTheme.colorScheme.surface
@@ -238,7 +261,7 @@ fun TransactionsScreenPreview() {
                         time = "23.09.2024"
                     )
                 ),
-                selectedTransaction = TransactionData.DefaultData.copy(transactionId = 0),
+                selectedTransactions = listOf(TransactionData.DefaultData.copy(transactionId = 0)),
                 showDeleteOption = true,
                 selectedFilter = 21
             ),
@@ -247,6 +270,7 @@ fun TransactionsScreenPreview() {
                 override fun deleteTransaction() {}
                 override fun onPressBack() {}
                 override fun filterTransaction(filter: Int) {}
+                override fun clearAllTransaction() {}
             }
         )
     }

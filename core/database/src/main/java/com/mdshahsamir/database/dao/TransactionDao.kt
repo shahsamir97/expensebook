@@ -1,6 +1,7 @@
 package com.mdshahsamir.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.mdshahsamir.database.data.Transaction
@@ -14,6 +15,6 @@ interface TransactionDao {
     @Insert
     fun addTransaction(transaction: Transaction)
 
-    @Query("DELETE FROM 'transaction' WHERE transactionId = :transactionId")
-    fun deleteTransaction(transactionId: Long)
+    @Delete
+    fun deleteTransaction(transactions: List<Transaction>)
 }
