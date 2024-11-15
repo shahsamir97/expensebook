@@ -14,11 +14,12 @@ import com.mdshahsamir.expensebook.ui.transactions.TransactionsScreen
 @Composable
 fun AppNavigation(navHostController: NavHostController) {
     val viewModel: DashboardViewModel = hiltViewModel()
+    val dashboardState by viewModel.dashboardState.collectAsStateWithLifecycle()
 
     NavHost(navController = navHostController, startDestination = NavigationScreen.Dashboard.route) {
 
         composable(NavigationScreen.Dashboard.route) {
-            DashboardScreen(viewModel)
+            DashboardScreen(viewModel, viewModel, dashboardState)
         }
 
         composable(NavigationScreen.Transactions.route) {

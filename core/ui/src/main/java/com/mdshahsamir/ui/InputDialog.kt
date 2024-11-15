@@ -247,6 +247,56 @@ fun EditCategoryDialog(
     }
 }
 
+@Composable
+fun InputIncomeDialog(title: String, onClickAdd: (amount: Float) -> Unit, onClose: () -> Unit) {
+    var amount by rememberSaveable { mutableStateOf("") }
+    var isError by rememberSaveable { mutableStateOf(false) }
+
+    Dialog(onDismissRequest = onClose) {
+        Card {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(text = title, style = MaterialTheme.typography.titleLarge)
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = amount,
+                    onValueChange = { amount = it },
+                    label = { Text(stringResource(R.string.enter_your_income)) },
+                    isError = isError,
+                    supportingText = {
+                        if (isError) {
+                            Text(
+                                text = stringResource(R.string.please_enter_a_valid_number),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Button(onClick = {
+                    try {
+                        onClickAdd(amount.toFloat())
+                        isError = false
+                    } catch (e: Exception) {
+                        isError = true
+                        e.printStackTrace()
+                    }
+                }
+                ) {
+                    Text(text = stringResource(R.string.add))
+                }
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun InputDialogPreview() {

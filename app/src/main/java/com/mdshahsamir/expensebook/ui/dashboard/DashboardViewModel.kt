@@ -21,7 +21,10 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository
-) : ViewModel(), TransactionEvents {
+) : ViewModel(), TransactionEvents, DashboardEvents {
+
+    private val _dashboardState = MutableStateFlow(DashboardState.DefaultState)
+    val dashboardState: StateFlow<DashboardState> = _dashboardState
 
     private val _listOfExpense = MutableStateFlow(listOf<Expense>())
     val listOfExpense: StateFlow<List<Expense>> = _listOfExpense
@@ -46,7 +49,12 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             dashboardRepository.getAllCategories().collectLatest { listOfExpenseState ->
                 _listOfExpense.value = listOfExpenseState
+                _dashboardState.update { it.copy(totalSpend = listOfExpense.value.sumOf { it.spendAmount.toDouble() }.toFloat()) }
             }
+        }
+
+        viewModelScope.launch {
+            _dashboardState.update { it.copy(income = dashboardRepository.getIncomeAmount()) }
         }
 
         retrieveTransactions()
@@ -192,6 +200,15 @@ class DashboardViewModel @Inject constructor(
     override fun clearAllTransaction() {
         viewModelScope.launch {
             dashboardRepository.deleteTransaction(transactionState.value.list)
+        }
+    }
+
+    override fun saveIncomeInput(amount: Float) {
+        viewModelScope.launch {
+            dashboardRepository.setIncome(amount)
+
+            val income  = dashboardRepository.getIncomeAmount()
+            _dashboardState.update { it.copy(income = income) }
         }
     }
 }

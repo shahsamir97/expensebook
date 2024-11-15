@@ -1,11 +1,16 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -14,8 +19,11 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -45,12 +53,17 @@ import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.ui.CreateCategoryDialog
 import com.mdshahsamir.ui.EditCategoryDialog
 import com.mdshahsamir.ui.InputDialog
+import com.mdshahsamir.ui.InputIncomeDialog
 import com.mdshahsamir.ui.ProgressItem
+import com.mdshahsamir.ui.theme.AddFundColor
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
+import com.mdshahsamir.ui.theme.SpendColor
 
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel
+    viewModel: DashboardViewModel,
+    events: DashboardEvents,
+    state: DashboardState,
 ) {
     val expenseState by viewModel.listOfExpense.collectAsStateWithLifecycle()
     val showInputDialogState by viewModel.showInputDialogState.collectAsStateWithLifecycle()
@@ -58,6 +71,8 @@ fun DashboardScreen(
     var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
 
     DashboardContent(
+        state = state,
+        events = events,
         expenseList = expenseState,
         onClickItem = { expense ->
             viewModel.processIntent(ExpenseIntent.ShowInputDialog(expense))
@@ -126,6 +141,8 @@ fun DashboardScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
+    events: DashboardEvents,
+    state: DashboardState,
     expenseList: List<Expense>,
     onClickItem: (expense: Expense) -> Unit,
     onClickAddCategory: () -> Unit,
@@ -205,41 +222,123 @@ fun DashboardContent(
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { contentPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding())) {
-            if (expenseList.isEmpty()) {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.add_a_category_with_budget),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center,
-                )
-            } else {
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    columns = StaggeredGridCells.Fixed(2),
-                ) {
-                    items(expenseList) { expense ->
-                        ProgressItem(
-                            title = expense.category,
-                            progress = convertToProgressBarValue(
-                                expense.spendAmount,
-                                expense.budget
-                            ),
-                            amount = expense.spendAmount,
-                            budget = expense.budget,
-                            onClick = { onClickItem(expense) },
-                            onLongClick = {
-                                showOptionsMenu = Pair(true, expense)
-                            },
-                            isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
-                        )
+        Column(modifier = Modifier.padding(top = contentPadding.calculateTopPadding())) {
+            ExpenseOverView(
+                spendAmount = state.totalSpend,
+                incomeAmount = state.income,
+                onClickAdd = { events.saveIncomeInput(it) },
+            )
+            Box(modifier = Modifier
+                .fillMaxSize(),
+            ) {
+                if (expenseList.isEmpty()) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.add_a_category_with_budget),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        textAlign = TextAlign.Center,
+                    )
+                } else {
+                    LazyVerticalStaggeredGrid(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        columns = StaggeredGridCells.Fixed(2),
+                    ) {
+                        items(expenseList) { expense ->
+                            ProgressItem(
+                                title = expense.category,
+                                progress = convertToProgressBarValue(
+                                    expense.spendAmount,
+                                    expense.budget
+                                ),
+                                amount = expense.spendAmount,
+                                budget = expense.budget,
+                                onClick = { onClickItem(expense) },
+                                onLongClick = {
+                                    showOptionsMenu = Pair(true, expense)
+                                },
+                                isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ExpenseOverView(spendAmount: Float, incomeAmount: Float, onClickAdd: (Float) -> Unit) {
+    var showIncomeInputDialog by rememberSaveable { mutableStateOf(false) }
+
+    Card(modifier = Modifier
+        .padding(16.dp)
+        .clickable(onClick = { showIncomeInputDialog = true }),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (spendAmount == 0f && incomeAmount == 0f) {
+                Icon(imageVector = Icons.Outlined.Add, contentDescription = "")
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.tap_here_to_add_income),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.outline
+                )
+            } else {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "SPEND",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = SpendColor,
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = spendAmount.toString(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.width(1.dp).height(50.dp).background(color = MaterialTheme.colorScheme.outlineVariant))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "INCOME",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = AddFundColor,
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = incomeAmount.toString(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+            }
+        }
+    }
+
+    if (showIncomeInputDialog) {
+        InputIncomeDialog(
+            title = "Income Info",
+            onClose = { showIncomeInputDialog = false },
+            onClickAdd = {
+                onClickAdd(it)
+                showIncomeInputDialog = false
+            },
+        )
     }
 }
 
@@ -248,6 +347,10 @@ fun DashboardContent(
 internal fun DashboardScreenPreview() {
     ExpenseBookTheme {
         DashboardContent(
+            state = DashboardState.DefaultState.copy(totalSpend = 200f, income = 300f),
+            events = object : DashboardEvents {
+                override fun saveIncomeInput(amount: Float) {}
+            },
             expenseList = listOf(
 
             ),

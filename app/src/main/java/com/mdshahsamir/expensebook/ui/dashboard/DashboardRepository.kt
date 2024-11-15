@@ -1,5 +1,6 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
+import android.content.SharedPreferences
 import com.mdshahsamir.database.data.Transaction
 import com.mdshahsamir.expensebook.datasource.LocalDataSource
 import com.mdshahsamir.expensebook.model.Expense
@@ -28,10 +29,15 @@ interface DashboardRepository {
     )
 
     suspend fun deleteTransaction(transactions: List<TransactionData>)
+
+    suspend fun setIncome(amount: Float)
+
+    suspend fun getIncomeAmount(): Float
 }
 
 class DashboardRepositoryImpl @Inject constructor(
-    private val localDataSource: LocalDataSource
+    private val localDataSource: LocalDataSource,
+    private val sharedPreferences: SharedPreferences,
 ): DashboardRepository {
     override suspend fun addCategory(expense: Expense) {
         withContext(Dispatchers.IO) {
@@ -107,5 +113,17 @@ class DashboardRepositoryImpl @Inject constructor(
                 }
             )
         }
+    }
+
+    override suspend fun setIncome(amount: Float) {
+        sharedPreferences.edit().putFloat(INCOME_KEY, amount).apply()
+    }
+
+    override suspend fun getIncomeAmount(): Float {
+        return sharedPreferences.getFloat(INCOME_KEY, 0f)
+    }
+
+    companion object {
+        val INCOME_KEY = "income"
     }
 }
