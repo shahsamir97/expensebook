@@ -15,4 +15,5 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="once_you_delete_all_transaction">Once you delete all transaction it cannot be undone.</string>
     <string name="tap_here_to_add_income">Tap Here To Add Income</string>
+    <string name="service_description">Shows your spend amount all the time</string>
 </resources>
