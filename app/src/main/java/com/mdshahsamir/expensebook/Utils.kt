@@ -47,4 +47,19 @@ fun String.isWithinLastDays(days: Int): Boolean {
     return inputDate.after(calendar.time) || inputDate == calendar.time
 }
 
+fun Float.toDisplayableNumberFormat(): String {
+    return when {
+        this >= 1_000_000 -> String.format("%.1fM", this / 1_000_000.0) // Millions (e.g., 1.2M)
+        this >= 10_000 -> "${this / 1_000}K" // Thousands without decimals (e.g., 10K)
+        else -> this.toString() // Less than 1K (e.g., 999)
+    }
+}
+
+fun Float.toDisplayableNumberFormatForTransaction(): String {
+    return when {
+        this >= 1_000_000 -> String.format("%.1fM", this / 1_000_000.0) // Millions (e.g., 1.2M)
+        else -> this.toString() // Less than 1K (e.g., 999)
+    }
+}
+
 val TransactionFilterOptions = listOf(7,21,30)
