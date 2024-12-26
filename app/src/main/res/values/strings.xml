@@ -1,4 +1,19 @@
 <resources>
     <string name="app_name">Expense Book</string>
     <string name="add_category">Add Category</string>
+    <string name="home">Home</string>
+    <string name="transactions">Transactions</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="back">Back</string>
+    <string name="category_colon_x">Category: %1$s</string>
+    <string name="add_a_category_with_budget">Add a category with budget \nand start tracking your expenses.</string>
+    <string name="clear_all_transactions">Clear all transactions</string>
+    <string name="filter">Filter</string>
+    <string name="last_x_days">Last %1$d days</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="once_you_delete_all_transaction">Once you delete all transaction it cannot be undone.</string>
+    <string name="tap_here_to_add_income">Tap Here To Add Income</string>
+    <string name="no_transactions_yet">No transactions yet</string>
 </resources>

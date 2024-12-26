@@ -1,5 +1,7 @@
 package com.mdshahsamir.expensebook.di
 
+import com.mdshahsamir.expensebook.datasource.LocalDataSource
+import com.mdshahsamir.expensebook.datasource.LocalDataSourceImpl
 import com.mdshahsamir.expensebook.ui.dashboard.DashboardRepository
 import com.mdshahsamir.expensebook.ui.dashboard.DashboardRepositoryImpl
 import dagger.Binds
@@ -14,4 +16,8 @@ abstract class DashboardModule {
     @Binds
     abstract fun bindDashboardRepo(dashboardRepositoryImpl: DashboardRepositoryImpl)
             : DashboardRepository
+
+    @Binds
+    abstract fun bindLocalDataSource(localDataSourceImpl: LocalDataSourceImpl)
+            : LocalDataSource
 }

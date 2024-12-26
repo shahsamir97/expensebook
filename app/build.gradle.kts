@@ -66,6 +66,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
 
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="filter_by_last_x_days">Filter by last %1$d days</string>
+</resources>

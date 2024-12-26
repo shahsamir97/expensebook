@@ -2,10 +2,10 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "48269c79649a6faa714010f0ab16374f",
+    "identityHash": "c9181063f418b6cf89172f0d728cee0d",
     "entities": [
       {
-        "tableName": "Expense",
+        "tableName": "ExpenseDbModel",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `category` TEXT NOT NULL, `budget` REAL NOT NULL, `spendAmount` REAL NOT NULL)",
         "fields": [
           {
@@ -90,7 +90,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '48269c79649a6faa714010f0ab16374f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c9181063f418b6cf89172f0d728cee0d')"
     ]
   }
 }

@@ -1,18 +1,33 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,36 +35,57 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.convertToProgressBarValue
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
-import com.mdshahsamir.expensebook.model.ExpenseState
+import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.ui.CreateCategoryDialog
+import com.mdshahsamir.ui.EditCategoryDialog
 import com.mdshahsamir.ui.InputDialog
+import com.mdshahsamir.ui.InputIncomeDialog
 import com.mdshahsamir.ui.ProgressItem
+import com.mdshahsamir.ui.theme.AddFundColor
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
+import com.mdshahsamir.ui.theme.SpendColor
 
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
-    val expenseState by viewModel.listOfExpenseState.collectAsStateWithLifecycle()
+fun DashboardScreen(
+    viewModel: DashboardViewModel,
+    events: DashboardEvents,
+    state: DashboardState,
+) {
+    val expenseState by viewModel.listOfExpense.collectAsStateWithLifecycle()
     val showInputDialogState by viewModel.showInputDialogState.collectAsStateWithLifecycle()
     val showAddCategoryDialog by viewModel.showAddCategoryDialog.collectAsStateWithLifecycle()
+    var showUpdateCategory by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
 
     DashboardContent(
-        expenseState = expenseState,
-        onClickItem = { index ->
-            viewModel.processIntent(ExpenseIntent.ShowInputDialog(index))
+        state = state,
+        events = events,
+        expenseList = expenseState,
+        onClickItem = { expense ->
+            viewModel.processIntent(ExpenseIntent.ShowInputDialog(expense))
         },
         onClickAddCategory = {
             viewModel.processIntent(ExpenseIntent.ShowAddCategoryDialog)
-        }
+        },
+        onClickDelete = { expense ->
+            viewModel.processIntent(ExpenseIntent.DeleteCategory(expense))
+        },
+        onClickUpdateCategory = { expense ->
+            showUpdateCategory = Pair(true, expense)
+        },
     )
 
     if (showInputDialogState.first) {
@@ -78,23 +114,97 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
             onClose = { viewModel.processIntent(ExpenseIntent.HideAddCategoryDialog) }
         )
     }
+
+    if (showUpdateCategory.first) {
+        showUpdateCategory.second.let { expense ->
+            EditCategoryDialog(
+                title = expense.category,
+                budget = expense.budget,
+                spend = expense.spendAmount,
+                onClose = { showUpdateCategory = Pair(false, Expense()) },
+                onClickUpdateCategory = { title, budget, spend ->
+                    val newValue = Expense(
+                        id = expense.id,
+                        category = title,
+                        budget = budget,
+                        spendAmount = spend
+                    )
+
+                    viewModel.processIntent(ExpenseIntent.UpdateCategory(newValue))
+                    showUpdateCategory = Pair(false, Expense())
+                }
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardContent(
-    expenseState: ArrayList<ExpenseState>,
-    onClickItem: (index: Int) -> Unit,
+    events: DashboardEvents,
+    state: DashboardState,
+    expenseList: List<Expense>,
+    onClickItem: (expense: Expense) -> Unit,
     onClickAddCategory: () -> Unit,
+    onClickDelete: (expense: Expense) -> Unit,
+    onClickUpdateCategory: (expense: Expense) -> Unit,
 ) {
+    var showOptionsMenu by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
+
     Scaffold(
-        topBar = { TopAppBar(
-            title = { Text(text = "Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
-        ) },
+        topBar = {
+            TopAppBar(
+                modifier = Modifier.defaultMinSize(),
+                title = {
+                    Text(
+                        text = stringResource(R.string.dashboard),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
+                actions = {
+                    if (showOptionsMenu.first) {
+                        Row {
+                            IconButton(onClick = {
+                                onClickUpdateCategory(showOptionsMenu.second)
+                                showOptionsMenu = Pair(false, Expense())
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Edit,
+                                    contentDescription = stringResource(R.string.edit),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                            IconButton(onClick = {
+                                onClickDelete(showOptionsMenu.second)
+                                showOptionsMenu = Pair(false, Expense())
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = stringResource(R.string.delete),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                        }
+                    }
+                },
+                navigationIcon = {
+                    if (showOptionsMenu.first) {
+                        IconButton(onClick = {
+                            showOptionsMenu = Pair(false, Expense())
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.padding(12.dp),
                 onClick = onClickAddCategory
             ) {
                 Row(
@@ -109,26 +219,126 @@ fun DashboardContent(
                     Text(text = stringResource(id = R.string.add_category))
                 }
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { contentPadding ->
-        LazyVerticalGrid(
-            modifier = Modifier
-                .padding(contentPadding)
-                .padding(16.dp),
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.End,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            itemsIndexed(expenseState) { index, expense ->
-                ProgressItem(
-                    title = expense.category,
-                    progress = convertToProgressBarValue(expense.spendAmount, expense.budget),
-                    amount = expense.spendAmount,
-                    budget = expense.budget,
-                    onClick = { onClickItem(index) }
-                )
+        Column(modifier = Modifier.padding(top = contentPadding.calculateTopPadding())) {
+            ExpenseOverView(
+                spendAmount = state.totalSpend,
+                incomeAmount = state.income,
+                onClickAdd = { events.saveIncomeInput(it) },
+            )
+            Box(modifier = Modifier
+                .fillMaxSize(),
+            ) {
+                if (expenseList.isEmpty()) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.add_a_category_with_budget),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        textAlign = TextAlign.Center,
+                    )
+                } else {
+                    LazyVerticalStaggeredGrid(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        columns = StaggeredGridCells.Fixed(2),
+                    ) {
+                        items(expenseList) { expense ->
+                            ProgressItem(
+                                title = expense.category,
+                                progress = convertToProgressBarValue(
+                                    expense.spendAmount,
+                                    expense.budget
+                                ),
+                                amount = expense.spendAmount,
+                                budget = expense.budget,
+                                onClick = { onClickItem(expense) },
+                                onLongClick = {
+                                    showOptionsMenu = Pair(true, expense)
+                                },
+                                isSelected = showOptionsMenu.first && showOptionsMenu.second.id == expense.id
+                            )
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun ExpenseOverView(spendAmount: Float, incomeAmount: Float, onClickAdd: (Float) -> Unit) {
+    var showIncomeInputDialog by rememberSaveable { mutableStateOf(false) }
+
+    Card(modifier = Modifier
+        .padding(16.dp)
+        .clickable(onClick = { showIncomeInputDialog = true }),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (spendAmount == 0f && incomeAmount == 0f) {
+                Icon(imageVector = Icons.Outlined.Add, contentDescription = "")
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.tap_here_to_add_income),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.outline
+                )
+            } else {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "SPEND",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = SpendColor,
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = spendAmount.toString(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.width(1.dp).height(50.dp).background(color = MaterialTheme.colorScheme.outlineVariant))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "INCOME",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = AddFundColor,
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = incomeAmount.toString(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+            }
+        }
+    }
+
+    if (showIncomeInputDialog) {
+        InputIncomeDialog(
+            title = "Income Info",
+            onClose = { showIncomeInputDialog = false },
+            onClickAdd = {
+                onClickAdd(it)
+                showIncomeInputDialog = false
+            },
+        )
     }
 }
 
@@ -136,6 +346,18 @@ fun DashboardContent(
 @Composable
 internal fun DashboardScreenPreview() {
     ExpenseBookTheme {
-        DashboardScreen()
+        DashboardContent(
+            state = DashboardState.DefaultState.copy(totalSpend = 200f, income = 300f),
+            events = object : DashboardEvents {
+                override fun saveIncomeInput(amount: Float) {}
+            },
+            expenseList = listOf(
+
+            ),
+            onClickItem = {},
+            onClickAddCategory = {},
+            onClickDelete = {},
+            onClickUpdateCategory = {}
+        )
     }
 }
