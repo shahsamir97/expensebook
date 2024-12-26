@@ -134,38 +134,53 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(top = paddingValues.calculateTopPadding()),
+            verticalArrangement = Arrangement.Center
             ) {
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                TransactionFilterOptions.forEach {
-                    FilterChip(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                        selected = transactionsState.selectedFilter == it,
-                        onClick = { events.filterTransaction(it) },
-                        label = { Text(text = stringResource(id = R.string.last_x_days, it)) },
-                        leadingIcon = {
-                            if (transactionsState.selectedFilter == it) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Check,
-                                    contentDescription = stringResource(id = R.string.filter_by_last_x_days, it),
-                                )
+            if (transactionsState.list.isEmpty()) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.no_transactions_yet),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TransactionFilterOptions.forEach {
+                        FilterChip(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                            selected = transactionsState.selectedFilter == it,
+                            onClick = { events.filterTransaction(it) },
+                            label = { Text(text = stringResource(id = R.string.last_x_days, it)) },
+                            leadingIcon = {
+                                if (transactionsState.selectedFilter == it) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Check,
+                                        contentDescription = stringResource(
+                                            id = R.string.filter_by_last_x_days,
+                                            it
+                                        ),
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
-            }
-            LazyColumn(modifier = Modifier
-                .weight(1f),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(transactionsState.list) { transactionData ->
-                    TransactionListItem(transactionData, transactionsState, events)
-                    Spacer(modifier = Modifier.height(8.dp))
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    items(transactionsState.list) { transactionData ->
+                        TransactionListItem(transactionData, transactionsState, events)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }

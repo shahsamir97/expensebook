@@ -2,12 +2,10 @@ package com.mdshahsamir.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -63,32 +61,17 @@ fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAdd
                     ),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Row (horizontalArrangement = Arrangement.Center) {
-                    Button(onClick = {
-                        try {
-                            isError = false
-                            onClickSpend(amount.toFloat())
-                        } catch (e:Exception) {
-                            isError = true
-                            e.printStackTrace()
-                        }
+                Button(onClick = {
+                    try {
+                        isError = false
+                        onClickSpend(amount.toFloat())
+                    } catch (e:Exception) {
+                        isError = true
+                        e.printStackTrace()
+                    }
 
-                    }) {
-                        Text(text = stringResource(R.string.spend))
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Button(onClick = {
-                        try {
-                            onClickAddFund(amount.toFloat())
-                            isError = false
-                        } catch (e: Exception) {
-                            isError = true
-                            e.printStackTrace()
-                        }
-                    }
-                    ) {
-                        Text(text = stringResource(R.string.add_fund))
-                    }
+                }) {
+                    Text(text = stringResource(R.string.spend))
                 }
             }
         }
