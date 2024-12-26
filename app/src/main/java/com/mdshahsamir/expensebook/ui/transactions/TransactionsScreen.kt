@@ -52,6 +52,7 @@ import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.TransactionFilterOptions
 import com.mdshahsamir.expensebook.model.TransactionData
 import com.mdshahsamir.expensebook.model.TransactionMode
+import com.mdshahsamir.expensebook.toDisplayableNumberFormatForTransaction
 import com.mdshahsamir.ui.EbAlertDialog
 import com.mdshahsamir.ui.EbTextView
 import com.mdshahsamir.ui.theme.AddFundColor
@@ -246,7 +247,7 @@ fun TransactionListItem(
             )
             Text(
                 modifier = Modifier.weight(1f),
-                text = transactionData.amount.toString(),
+                text = transactionData.amount.toDisplayableNumberFormatForTransaction(),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 textAlign = TextAlign.End
             )

@@ -50,7 +50,7 @@ fun ProgressItem(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
+                .padding(vertical = 20.dp, horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -60,8 +60,8 @@ fun ProgressItem(
                 strokeWidth = 8.dp,
                 trackColor = MaterialTheme.colorScheme.inversePrimary
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "$amount/$budget", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(text = "${amount.displayableNumberFormat()}/${budget.displayableNumberFormat()}", style = MaterialTheme.typography.titleMedium)
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
@@ -70,6 +70,15 @@ fun ProgressItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+fun Float.displayableNumberFormat(): String {
+    return when {
+        this >= 1_000_000 -> String.format("%.1fM", this / 1_000_000.0) // Millions (e.g., 1.2M)
+        this >= 10_000 -> "${this / 1_000}K" // Thousands without decimals (e.g., 10K)
+        this >= 1_000 -> String.format("%.1fK", this / 1_000.0) // Thousands with one decimal (e.g., 1.2K)
+        else -> this.toString() // Less than 1K (e.g., 999)
     }
 }
 

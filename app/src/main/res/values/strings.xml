@@ -16,4 +16,6 @@
     <string name="once_you_delete_all_transaction">Once you delete all transaction it cannot be undone.</string>
     <string name="tap_here_to_add_income">Tap Here To Add Income</string>
     <string name="no_transactions_yet">No transactions yet</string>
+    <string name="spend">SPEND</string>
+    <string name="income">INCOME</string>
 </resources>

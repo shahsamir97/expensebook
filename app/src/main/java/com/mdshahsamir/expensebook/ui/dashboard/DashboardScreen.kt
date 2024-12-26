@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.convertToProgressBarValue
+import com.mdshahsamir.expensebook.toDisplayableNumberFormat
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
 import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.ui.CreateCategoryDialog
@@ -297,31 +298,34 @@ private fun ExpenseOverView(spendAmount: Float, incomeAmount: Float, onClickAdd:
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "SPEND",
+                        text = stringResource(R.string.spend),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = SpendColor,
                     )
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = spendAmount.toString(),
+                        text = spendAmount.toDisplayableNumberFormat(),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                Spacer(modifier = Modifier.width(1.dp).height(50.dp).background(color = MaterialTheme.colorScheme.outlineVariant))
+                Spacer(modifier = Modifier
+                    .width(1.dp)
+                    .height(50.dp)
+                    .background(color = MaterialTheme.colorScheme.outlineVariant))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "INCOME",
+                        text = stringResource(R.string.income),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = AddFundColor,
                     )
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = incomeAmount.toString(),
+                        text = incomeAmount.toDisplayableNumberFormat(),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     )
