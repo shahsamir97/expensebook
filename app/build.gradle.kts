@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.dagger.hilt)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.google.gms)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -69,6 +70,7 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
 
     testImplementation(libs.junit)
