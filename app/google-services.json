@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117015263047",
+    "project_id": "expense-book-19b44",
+    "storage_bucket": "expense-book-19b44.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117015263047:android:9eba5e47354990e7597e62",
+        "android_client_info": {
+          "package_name": "com.samapplab.expensebook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZJ3-pQFflOPfpShpNsV_6Oh_YvULEOZI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

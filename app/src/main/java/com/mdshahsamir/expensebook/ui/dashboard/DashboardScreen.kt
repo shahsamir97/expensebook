@@ -96,10 +96,6 @@ fun DashboardScreen(
                 viewModel.processIntent(ExpenseIntent.Spend(spendAmount))
                 viewModel.processIntent(ExpenseIntent.HideInputDialog)
             },
-            onClickAddFund = { fundAmount ->
-                viewModel.processIntent(ExpenseIntent.AddFund(fundAmount))
-                viewModel.processIntent(ExpenseIntent.HideInputDialog)
-            },
             onClose = {
                 viewModel.processIntent(ExpenseIntent.HideInputDialog)
             }
