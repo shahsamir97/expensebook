@@ -29,7 +29,7 @@ import androidx.compose.ui.window.Dialog
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
 
 @Composable
-fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClickAddFund: (amount: Float) -> Unit, onClose: () -> Unit) {
+fun InputDialog(title: String, onClickSpend: (amount: Float) -> Unit, onClose: () -> Unit) {
     var amount by rememberSaveable { mutableStateOf("") }
     var isError by rememberSaveable { mutableStateOf(false) }
 
@@ -287,7 +287,6 @@ fun InputDialogPreview() {
         InputDialog(
             title = "Miscellaneous",
             onClickSpend = {},
-            onClickAddFund = {},
             onClose = {},
         )
     }
