@@ -20,6 +20,7 @@ material3 = "1.3.0"
 hilt = "2.52"
 roomDBVersion = "2.6.1"
 googleGms = "4.4.2"
+firebaseCrashlyticsPlugin = "3.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,8 +49,9 @@ android-room = { group = "androidx.room", name = "room-runtime", version.ref = "
 android-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomDBVersion" }
 android-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomDBVersion" }
 
-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -58,3 +60,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 google-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 google-gms = { id = "com.google.gms.google-services", version.ref = "googleGms"}
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
