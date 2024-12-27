@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Card
@@ -42,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,11 +51,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mdshahsamir.expensebook.R
-import com.mdshahsamir.expensebook.TransactionFilterOptions
+import com.mdshahsamir.expensebook.getStartDateOfLastDays
 import com.mdshahsamir.expensebook.model.TransactionData
+import com.mdshahsamir.expensebook.model.TransactionFilter
+import com.mdshahsamir.expensebook.model.TransactionFilterPreset
 import com.mdshahsamir.expensebook.model.TransactionMode
 import com.mdshahsamir.expensebook.toDisplayableNumberFormatForTransaction
+import com.mdshahsamir.expensebook.toUiDateFormat
 import com.mdshahsamir.ui.EbAlertDialog
+import com.mdshahsamir.ui.EbDateRangePicker
 import com.mdshahsamir.ui.EbTextView
 import com.mdshahsamir.ui.theme.AddFundColor
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
@@ -66,6 +72,7 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
 
     var showOptionsMenu by rememberSaveable { mutableStateOf(false) }
     var showClearTransactionAlert by rememberSaveable { mutableStateOf(false) }
+    var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -109,6 +116,19 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Outlined.Delete,
+                                            contentDescription = stringResource(R.string.clear_all_transactions),
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(text = "Filter transactions") },
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        showDatePickerDialog = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_filter_list),
                                             contentDescription = stringResource(R.string.delete),
                                         )
                                     }
@@ -152,20 +172,37 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    TransactionFilterOptions.forEach {
+                    if (transactionsState.showCustomFilter)
+                    {
                         FilterChip(
                             modifier = Modifier.padding(horizontal = 4.dp),
                             colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                            selected = transactionsState.selectedFilter == it,
-                            onClick = { events.filterTransaction(it) },
-                            label = { Text(text = stringResource(id = R.string.last_x_days, it)) },
+                            selected = true,
+                            onClick = { events.onDateRangeSelected(transactionsState.selectedFilter)},
+                            label = { Text(text = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}") },
                             leadingIcon = {
-                                if (transactionsState.selectedFilter == it) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Close,
+                                    contentDescription = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}",
+                                )
+                            }
+                        )
+                    }
+
+                    TransactionFilterPreset.entries.forEach {
+                        FilterChip(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                            selected = transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days),
+                            onClick = { events.filterTransaction(it.days) },
+                            label = { Text(text = stringResource(id = R.string.last_x_days, it.days)) },
+                            leadingIcon = {
+                                if (transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days)) {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
                                         contentDescription = stringResource(
                                             id = R.string.filter_by_last_x_days,
-                                            it
+                                            it.days
                                         ),
                                     )
                                 }
@@ -196,6 +233,19 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                 showClearTransactionAlert = false
             },
             onClickDismiss = { showClearTransactionAlert = false }
+        )
+    }
+
+    if (showDatePickerDialog) {
+        EbDateRangePicker(
+            onDateRangeSelected = { dateRange ->
+                showDatePickerDialog = false
+
+                if (dateRange.first != null && dateRange.second != null) {
+                    events.onDateRangeSelected(TransactionFilter(dateRange.first!!, dateRange.second!!))
+                }
+            },
+            onDismiss = { showDatePickerDialog = false }
         )
     }
 }
@@ -279,7 +329,9 @@ fun TransactionsScreenPreview() {
                 ),
                 selectedTransactions = listOf(TransactionData.DefaultData.copy(transactionId = 0)),
                 showDeleteOption = true,
-                selectedFilter = 21
+                selectedFilter = TransactionFilter(endDate = Long.MAX_VALUE),
+                showDatePicker = false,
+                showCustomFilter = false,
             ),
             events = object : TransactionEvents {
                 override fun selectTransaction(transactionData: TransactionData) {}
@@ -287,6 +339,7 @@ fun TransactionsScreenPreview() {
                 override fun onPressBack() {}
                 override fun filterTransaction(filter: Int) {}
                 override fun clearAllTransaction() {}
+                override fun onDateRangeSelected(transactionFilter: TransactionFilter) {}
             }
         )
     }
