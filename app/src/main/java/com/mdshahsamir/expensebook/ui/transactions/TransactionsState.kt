@@ -10,6 +10,7 @@ data class TransactionsState(
     val selectedFilter: TransactionFilter,
     val showDatePicker: Boolean,
     val showCustomFilter: Boolean,
+    val showToastMessage: String = ""
 ) {
     companion object {
         val DefaultState = TransactionsState(

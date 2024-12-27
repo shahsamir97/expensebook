@@ -19,4 +19,5 @@
     <string name="spend">SPEND</string>
     <string name="income">INCOME</string>
     <string name="filter_transactions">Filter transactions</string>
+    <string name="export_as_pdf">Export as PDF</string>
 </resources>

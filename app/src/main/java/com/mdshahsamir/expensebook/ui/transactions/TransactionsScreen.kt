@@ -1,5 +1,6 @@
 package com.mdshahsamir.expensebook.ui.transactions
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,12 +38,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +53,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.getStartDateOfLastDays
 import com.mdshahsamir.expensebook.model.TransactionData
@@ -66,13 +72,23 @@ import com.mdshahsamir.ui.theme.ExpenseBookTheme
 import com.mdshahsamir.ui.theme.SpendColor
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalPermissionsApi::class
+)
 @Composable
 fun TransactionsScreen(transactionsState: TransactionsState, events: TransactionEvents) {
-
+    val context = LocalContext.current
     var showOptionsMenu by rememberSaveable { mutableStateOf(false) }
     var showClearTransactionAlert by rememberSaveable { mutableStateOf(false) }
     var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
+    val storagePermissionState = rememberPermissionState(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+    LaunchedEffect(key1 = transactionsState.showToastMessage) {
+        if (transactionsState.showToastMessage.isNotEmpty()) {
+            Toast.makeText(context, transactionsState.showToastMessage, Toast.LENGTH_SHORT).show()
+            events.resetToastMessage()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -95,7 +111,6 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                 )
                             }
                         }
-
                         Box {
                             IconButton(onClick = { showOptionsMenu = true }) {
                                 Icon(
@@ -130,6 +145,26 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_filter_list),
                                             contentDescription = stringResource(R.string.delete),
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(R.string.export_as_pdf)) },
+                                    onClick = {
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                                            events.onClickExportPDF()
+                                        } else {
+                                            if (storagePermissionState.status.isGranted) {
+                                                events.onClickExportPDF()
+                                            } else {
+                                                storagePermissionState.launchPermissionRequest()
+                                            }
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_file_export),
+                                            contentDescription = stringResource(R.string.export_as_pdf),
                                         )
                                     }
                                 )
@@ -344,6 +379,8 @@ fun TransactionsScreenPreview() {
                 override fun filterTransaction(filter: Int) {}
                 override fun clearAllTransaction() {}
                 override fun onDateRangeSelected(transactionFilter: TransactionFilter) {}
+                override fun onClickExportPDF() {}
+                override fun resetToastMessage() {}
             }
         )
     }
