@@ -10,4 +10,6 @@ interface TransactionEvents {
     fun filterTransaction(filter: Int)
     fun clearAllTransaction()
     fun onDateRangeSelected(transactionFilter: TransactionFilter)
+    fun onClickExportPDF()
+    fun resetToastMessage()
 }

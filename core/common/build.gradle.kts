@@ -34,6 +34,7 @@ android {
 
 dependencies {
     api(libs.androidx.lifecycle.runtime.compose)
+    api(libs.google.accompanist.permissions)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
