@@ -292,14 +292,15 @@ class DashboardViewModel @Inject constructor(
         }
 
         val uri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
-        return uri?.let {
+        uri?.let {
             context.contentResolver.openOutputStream(it)?.use { outputStream ->
                 outputStream.write(fileContent)
                 outputStream.flush()
                 outputStream.close()
             }
-            uri.toString() // Return the URI of the saved file
         }
+
+        return "/Document/Expense_Book/$fileName"
     }
 
     fun generatePdfContent(startDate: String, endDate: String): ByteArray {

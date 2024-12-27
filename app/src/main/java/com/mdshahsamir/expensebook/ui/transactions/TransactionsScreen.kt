@@ -85,7 +85,7 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
 
     LaunchedEffect(key1 = transactionsState.showToastMessage) {
         if (transactionsState.showToastMessage.isNotEmpty()) {
-            Toast.makeText(context, transactionsState.showToastMessage, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, transactionsState.showToastMessage, Toast.LENGTH_LONG).show()
             events.resetToastMessage()
         }
     }
@@ -144,13 +144,15 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                     leadingIcon = {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_filter_list),
-                                            contentDescription = stringResource(R.string.delete),
+                                            contentDescription = stringResource(R.string.filter_transactions),
                                         )
                                     }
                                 )
                                 DropdownMenuItem(
                                     text = { Text(text = stringResource(R.string.export_as_pdf)) },
                                     onClick = {
+                                        showOptionsMenu = false
+
                                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                                             events.onClickExportPDF()
                                         } else {
