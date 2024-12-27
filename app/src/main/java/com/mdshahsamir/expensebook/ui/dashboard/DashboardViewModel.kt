@@ -329,7 +329,7 @@ class DashboardViewModel @Inject constructor(
         currentY += lineHeight
 
         // Table Rows
-        var totalSpend = 0.0
+        var totalSpend = 0f
         _transactionState.value.list.forEach {
             // Check if we have enough space for the next row
             if (currentY > 800) {  // Exceeds page size, so create a new page
@@ -366,7 +366,7 @@ class DashboardViewModel @Inject constructor(
 
         // Draw the Total Spend
         paint.textSize = 16f
-        currentPage.canvas.drawText("Total Spend: $totalSpend", startX + 300, currentY, paint)
+        currentPage.canvas.drawText("Total Spend: ${totalSpend}", startX + 100, currentY, paint)
 
         pdfDocument.finishPage(currentPage)
 

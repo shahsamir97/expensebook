@@ -204,7 +204,7 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                         colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
                         selected = true,
                         onClick = { events.onDateRangeSelected(transactionsState.selectedFilter)},
-                        label = { Text(text = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}") },
+                        label = { Text(text = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.endDate.toUiDateFormat()}") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
