@@ -121,7 +121,7 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(text = "Filter transactions") },
+                                    text = { Text(text = stringResource(R.string.filter_transactions)) },
                                     onClick = {
                                         showOptionsMenu = false
                                         showDatePickerDialog = true
@@ -157,59 +157,63 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
             .padding(top = paddingValues.calculateTopPadding()),
             verticalArrangement = Arrangement.Center
             ) {
-            if (transactionsState.list.isEmpty()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.no_transactions_yet),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center,
-                )
-            } else {
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    if (transactionsState.showCustomFilter)
-                    {
-                        FilterChip(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                            selected = true,
-                            onClick = { events.onDateRangeSelected(transactionsState.selectedFilter)},
-                            label = { Text(text = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}") },
-                            leadingIcon = {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (transactionsState.showCustomFilter) {
+                    FilterChip(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                        selected = true,
+                        onClick = { events.onDateRangeSelected(transactionsState.selectedFilter)},
+                        label = { Text(text = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Close,
+                                contentDescription = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}",
+                            )
+                        }
+                    )
+                }
+
+                TransactionFilterPreset.entries.forEach {
+                    FilterChip(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                        selected = transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days),
+                        onClick = { events.filterTransaction(it.days) },
+                        label = { Text(text = stringResource(id = R.string.last_x_days, it.days)) },
+                        leadingIcon = {
+                            if (transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days)) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Close,
-                                    contentDescription = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}",
+                                    imageVector = Icons.Outlined.Check,
+                                    contentDescription = stringResource(
+                                        id = R.string.filter_by_last_x_days,
+                                        it.days
+                                    ),
                                 )
                             }
-                        )
-                    }
-
-                    TransactionFilterPreset.entries.forEach {
-                        FilterChip(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                            selected = transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days),
-                            onClick = { events.filterTransaction(it.days) },
-                            label = { Text(text = stringResource(id = R.string.last_x_days, it.days)) },
-                            leadingIcon = {
-                                if (transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days)) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = stringResource(
-                                            id = R.string.filter_by_last_x_days,
-                                            it.days
-                                        ),
-                                    )
-                                }
-                            }
-                        )
-                    }
+                        }
+                    )
                 }
+            }
+
+            if (transactionsState.list.isEmpty()) {
+                Box( modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center),
+                        text = stringResource(R.string.no_transactions_yet),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            } else {
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f),
