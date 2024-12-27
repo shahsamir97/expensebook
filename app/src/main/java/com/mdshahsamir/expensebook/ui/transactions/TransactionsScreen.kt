@@ -319,25 +319,25 @@ fun TransactionListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = transactionData.type.uppercase(),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = if (transactionData.type.equals(TransactionMode.SPEND)) SpendColor else AddFundColor
                 )
                 EbTextView(
                     text = stringResource(R.string.category_colon_x,transactionData.category).uppercase(),
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
                 modifier = Modifier.weight(1f),
                 text = transactionData.time,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center
             )
             Text(
                 modifier = Modifier.weight(1f),
                 text = transactionData.amount.toDisplayableNumberFormatForTransaction(),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 textAlign = TextAlign.End
             )
         }
