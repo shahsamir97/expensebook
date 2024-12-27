@@ -36,17 +36,6 @@ fun String.toTimestamp(): Long {
     }
 }
 
-fun String.isWithinLastDays(days: Int): Boolean {
-    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-    val inputDate = sdf.parse(this) ?: return false // Parse the input date or return false if invalid
-
-    val calendar = Calendar.getInstance()
-    calendar.time = Date() // Set to the current date
-    calendar.add(Calendar.DAY_OF_YEAR, -days) // Subtract the specified number of days
-
-    return inputDate.after(calendar.time) || inputDate == calendar.time
-}
-
 fun Float.toDisplayableNumberFormat(): String {
     return when {
         this >= 1_000_000 -> String.format("%.1fM", this / 1_000_000.0) // Millions (e.g., 1.2M)
@@ -62,4 +51,18 @@ fun Float.toDisplayableNumberFormatForTransaction(): String {
     }
 }
 
-val TransactionFilterOptions = listOf(7,21,30)
+fun getStartDateOfLastDays(days: Int): Long {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    calendar.add(Calendar.DAY_OF_YEAR, -days)
+
+    return calendar.timeInMillis
+}
+
+fun isTimeWithinRange(startDate: Long, endDate: Long, inputTime: Long): Boolean {
+    return inputTime in startDate..endDate
+}

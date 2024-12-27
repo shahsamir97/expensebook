@@ -2,11 +2,14 @@ package com.mdshahsamir.expensebook.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mdshahsamir.expensebook.getStartDateOfLastDays
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
-import com.mdshahsamir.expensebook.isWithinLastDays
+import com.mdshahsamir.expensebook.isTimeWithinRange
 import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.expensebook.model.TransactionData
+import com.mdshahsamir.expensebook.model.TransactionFilter
 import com.mdshahsamir.expensebook.model.TransactionMode
+import com.mdshahsamir.expensebook.toTimestamp
 import com.mdshahsamir.expensebook.ui.transactions.TransactionEvents
 import com.mdshahsamir.expensebook.ui.transactions.TransactionsState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,9 +69,9 @@ class DashboardViewModel @Inject constructor(
             dashboardRepository.getAllTransaction().collectLatest { listOfTransactions ->
                 _transactionState.update {
                     it.copy(list = listOfTransactions.filter {
-                        it.time.isWithinLastDays(
-                            transactionState.value.selectedFilter
-                        )
+                        _transactionState.value.selectedFilter.let { filter ->
+                            isTimeWithinRange(filter.startDate, filter.endDate, it.time.toTimestamp())
+                        }
                     })
                 }
             }
@@ -180,7 +184,10 @@ class DashboardViewModel @Inject constructor(
     }
 
     override fun filterTransaction(filter: Int) {
-        if (filter == transactionState.value.selectedFilter) {
+        val startDate = getStartDateOfLastDays(filter)
+        val endDate = Calendar.getInstance().timeInMillis
+
+        if (startDate == transactionState.value.selectedFilter.startDate) {
             retrieveTransactions()
             _transactionState.update {
                 it.copy(
@@ -191,7 +198,7 @@ class DashboardViewModel @Inject constructor(
             retrieveTransactions()
             _transactionState.update {
                 it.copy(
-                    selectedFilter = filter
+                    selectedFilter = TransactionFilter(startDate, endDate)
                 )
             }
         }
@@ -200,6 +207,28 @@ class DashboardViewModel @Inject constructor(
     override fun clearAllTransaction() {
         viewModelScope.launch {
             dashboardRepository.deleteTransaction(transactionState.value.list)
+        }
+    }
+
+    override fun onDateRangeSelected(transactionFilter: TransactionFilter) {
+        if (transactionFilter.startDate == transactionState.value.selectedFilter.startDate
+            && transactionFilter.endDate == transactionState.value.selectedFilter.endDate )
+        {
+            retrieveTransactions()
+            _transactionState.update {
+                it.copy(
+                    selectedFilter = TransactionsState.DefaultState.selectedFilter,
+                    showCustomFilter = false
+                )
+            }
+        } else {
+            retrieveTransactions()
+            _transactionState.update {
+                it.copy(
+                    selectedFilter = TransactionFilter(transactionFilter.startDate, transactionFilter.endDate),
+                    showCustomFilter = true
+                )
+            }
         }
     }
 
