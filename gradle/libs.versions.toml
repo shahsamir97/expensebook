@@ -22,6 +22,8 @@ roomDBVersion = "2.6.1"
 googleGms = "4.4.2"
 firebaseCrashlyticsPlugin = "3.0.2"
 accompanist = "0.37.0"
+work-manager = "2.7.1"
+hiltWork = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +53,10 @@ android-room-compiler = { group = "androidx.room", name = "room-compiler", versi
 android-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomDBVersion" }
 
 google-accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist"}
+
+androidx-work = { module = "androidx.work:work-runtime-ktx", version.ref = "work-manager" }
+hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
