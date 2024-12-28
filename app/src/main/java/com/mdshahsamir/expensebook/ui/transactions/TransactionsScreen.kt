@@ -1,5 +1,6 @@
 package com.mdshahsamir.expensebook.ui.transactions
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Card
@@ -36,36 +38,57 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.mdshahsamir.expensebook.R
-import com.mdshahsamir.expensebook.TransactionFilterOptions
+import com.mdshahsamir.expensebook.getStartDateOfLastDays
 import com.mdshahsamir.expensebook.model.TransactionData
+import com.mdshahsamir.expensebook.model.TransactionFilter
+import com.mdshahsamir.expensebook.model.TransactionFilterPreset
 import com.mdshahsamir.expensebook.model.TransactionMode
 import com.mdshahsamir.expensebook.toDisplayableNumberFormatForTransaction
+import com.mdshahsamir.expensebook.toUiDateFormat
 import com.mdshahsamir.ui.EbAlertDialog
+import com.mdshahsamir.ui.EbDateRangePicker
 import com.mdshahsamir.ui.EbTextView
 import com.mdshahsamir.ui.theme.AddFundColor
 import com.mdshahsamir.ui.theme.ExpenseBookTheme
 import com.mdshahsamir.ui.theme.SpendColor
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalPermissionsApi::class
+)
 @Composable
 fun TransactionsScreen(transactionsState: TransactionsState, events: TransactionEvents) {
-
+    val context = LocalContext.current
     var showOptionsMenu by rememberSaveable { mutableStateOf(false) }
     var showClearTransactionAlert by rememberSaveable { mutableStateOf(false) }
+    var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
+    val storagePermissionState = rememberPermissionState(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+    LaunchedEffect(key1 = transactionsState.showToastMessage) {
+        if (transactionsState.showToastMessage.isNotEmpty()) {
+            Toast.makeText(context, transactionsState.showToastMessage, Toast.LENGTH_LONG).show()
+            events.resetToastMessage()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -88,7 +111,6 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                 )
                             }
                         }
-
                         Box {
                             IconButton(onClick = { showOptionsMenu = true }) {
                                 Icon(
@@ -109,7 +131,42 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Outlined.Delete,
-                                            contentDescription = stringResource(R.string.delete),
+                                            contentDescription = stringResource(R.string.clear_all_transactions),
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(R.string.filter_transactions)) },
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        showDatePickerDialog = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_filter_list),
+                                            contentDescription = stringResource(R.string.filter_transactions),
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(R.string.export_as_pdf)) },
+                                    onClick = {
+                                        showOptionsMenu = false
+
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                                            events.onClickExportPDF()
+                                        } else {
+                                            if (storagePermissionState.status.isGranted) {
+                                                events.onClickExportPDF()
+                                            } else {
+                                                storagePermissionState.launchPermissionRequest()
+                                            }
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_file_export),
+                                            contentDescription = stringResource(R.string.export_as_pdf),
                                         )
                                     }
                                 )
@@ -137,42 +194,63 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
             .padding(top = paddingValues.calculateTopPadding()),
             verticalArrangement = Arrangement.Center
             ) {
-            if (transactionsState.list.isEmpty()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.no_transactions_yet),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center,
-                )
-            } else {
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    TransactionFilterOptions.forEach {
-                        FilterChip(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
-                            selected = transactionsState.selectedFilter == it,
-                            onClick = { events.filterTransaction(it) },
-                            label = { Text(text = stringResource(id = R.string.last_x_days, it)) },
-                            leadingIcon = {
-                                if (transactionsState.selectedFilter == it) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Check,
-                                        contentDescription = stringResource(
-                                            id = R.string.filter_by_last_x_days,
-                                            it
-                                        ),
-                                    )
-                                }
-                            }
-                        )
-                    }
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (transactionsState.showCustomFilter) {
+                    FilterChip(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                        selected = true,
+                        onClick = { events.onDateRangeSelected(transactionsState.selectedFilter)},
+                        label = { Text(text = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.endDate.toUiDateFormat()}") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Close,
+                                contentDescription = "From: ${transactionsState.selectedFilter.startDate.toUiDateFormat()} - To: ${transactionsState.selectedFilter.startDate.toUiDateFormat()}",
+                            )
+                        }
+                    )
                 }
+
+                TransactionFilterPreset.entries.forEach {
+                    FilterChip(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                        selected = transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days),
+                        onClick = { events.filterTransaction(it.days) },
+                        label = { Text(text = stringResource(id = R.string.last_x_days, it.days)) },
+                        leadingIcon = {
+                            if (transactionsState.selectedFilter.startDate == getStartDateOfLastDays(it.days)) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Check,
+                                    contentDescription = stringResource(
+                                        id = R.string.filter_by_last_x_days,
+                                        it.days
+                                    ),
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            if (transactionsState.list.isEmpty()) {
+                Box( modifier = Modifier.weight(1f)) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center),
+                        text = stringResource(R.string.no_transactions_yet),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            } else {
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f),
@@ -196,6 +274,19 @@ fun TransactionsScreen(transactionsState: TransactionsState, events: Transaction
                 showClearTransactionAlert = false
             },
             onClickDismiss = { showClearTransactionAlert = false }
+        )
+    }
+
+    if (showDatePickerDialog) {
+        EbDateRangePicker(
+            onDateRangeSelected = { dateRange ->
+                showDatePickerDialog = false
+
+                if (dateRange.first != null && dateRange.second != null) {
+                    events.onDateRangeSelected(TransactionFilter(dateRange.first!!, dateRange.second!!))
+                }
+            },
+            onDismiss = { showDatePickerDialog = false }
         )
     }
 }
@@ -230,25 +321,25 @@ fun TransactionListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = transactionData.type.uppercase(),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = if (transactionData.type.equals(TransactionMode.SPEND)) SpendColor else AddFundColor
                 )
                 EbTextView(
                     text = stringResource(R.string.category_colon_x,transactionData.category).uppercase(),
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
                 modifier = Modifier.weight(1f),
                 text = transactionData.time,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center
             )
             Text(
                 modifier = Modifier.weight(1f),
                 text = transactionData.amount.toDisplayableNumberFormatForTransaction(),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 textAlign = TextAlign.End
             )
         }
@@ -279,7 +370,9 @@ fun TransactionsScreenPreview() {
                 ),
                 selectedTransactions = listOf(TransactionData.DefaultData.copy(transactionId = 0)),
                 showDeleteOption = true,
-                selectedFilter = 21
+                selectedFilter = TransactionFilter(endDate = Long.MAX_VALUE),
+                showDatePicker = false,
+                showCustomFilter = false,
             ),
             events = object : TransactionEvents {
                 override fun selectTransaction(transactionData: TransactionData) {}
@@ -287,6 +380,9 @@ fun TransactionsScreenPreview() {
                 override fun onPressBack() {}
                 override fun filterTransaction(filter: Int) {}
                 override fun clearAllTransaction() {}
+                override fun onDateRangeSelected(transactionFilter: TransactionFilter) {}
+                override fun onClickExportPDF() {}
+                override fun resetToastMessage() {}
             }
         )
     }

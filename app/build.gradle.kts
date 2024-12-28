@@ -25,6 +25,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -66,7 +72,11 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.work)
     kapt(libs.hilt.android.compiler)
+    kapt(libs.hilt.compiler)
+
+    implementation(libs.androidx.work)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)

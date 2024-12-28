@@ -18,6 +18,7 @@ class DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java, "expense-book-database"
-        ).build()
+        )
+            .build()
     }
 }
