@@ -317,7 +317,7 @@ class DashboardViewModel @Inject constructor(
 
         // Title
         paint.textSize = 18f
-        currentPage.canvas.drawText("Expense Statement", startX, currentY, paint)
+        currentPage.canvas.drawText("Expense Book Statement", startX, currentY, paint)
         currentY += lineHeight * 2
 
         // Statement Dates
