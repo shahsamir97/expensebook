@@ -1,5 +1,11 @@
 package com.mdshahsamir.expensebook
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import com.mdshahsamir.database.data.ExpenseDbModel
 import com.mdshahsamir.expensebook.model.Expense
 import java.text.SimpleDateFormat
@@ -65,4 +71,17 @@ fun getStartDateOfLastDays(days: Int): Long {
 
 fun isTimeWithinRange(startDate: Long, endDate: Long, inputTime: Long): Boolean {
     return inputTime in startDate..endDate
+}
+
+fun Uri.toBitmap(context: Context): Bitmap? {
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(context.contentResolver, this)
+            ImageDecoder.decodeBitmap(source)
+        } else {
+            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+        }
+    } catch (e: Exception) {
+        null
+    }
 }
