@@ -301,7 +301,7 @@ private fun ExpenseOverView(spendAmount: Float, incomeAmount: Float, onClickAdd:
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.spend),
+                        text = stringResource(R.string.total_spend),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = SpendColor,
