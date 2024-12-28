@@ -319,15 +319,15 @@ fun TransactionListItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                EbTextView(
+                    text = transactionData.category,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    overflow = TextOverflow.Ellipsis,
+                    color = if (transactionData.type == TransactionMode.SPEND) SpendColor else AddFundColor
+                )
                 Text(
                     text = transactionData.type.uppercase(),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = if (transactionData.type.equals(TransactionMode.SPEND)) SpendColor else AddFundColor
-                )
-                EbTextView(
-                    text = stringResource(R.string.category_colon_x,transactionData.category).uppercase(),
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
