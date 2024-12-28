@@ -18,4 +18,7 @@
     <string name="no_transactions_yet">No transactions yet</string>
     <string name="spend">SPEND</string>
     <string name="income">INCOME</string>
+    <string name="filter_transactions">Filter transactions</string>
+    <string name="export_as_pdf">Export as PDF</string>
+    <string name="you_crossed_your_budget_on_x">You crossed your budget on %1$s</string>
 </resources>

@@ -15,5 +15,5 @@ data class Transaction(
     @ColumnInfo(name = "type")
     val type: String,
     @ColumnInfo(name = "time")
-    val time: Long,
+    val time: String,
 )

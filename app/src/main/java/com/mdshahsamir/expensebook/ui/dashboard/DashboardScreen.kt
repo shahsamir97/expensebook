@@ -1,5 +1,6 @@
 package com.mdshahsamir.expensebook.ui.dashboard
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mdshahsamir.expensebook.R
 import com.mdshahsamir.expensebook.convertToProgressBarValue
-import com.mdshahsamir.expensebook.toDisplayableNumberFormat
 import com.mdshahsamir.expensebook.intent.ExpenseIntent
 import com.mdshahsamir.expensebook.model.Expense
+import com.mdshahsamir.expensebook.toDisplayableNumberFormat
 import com.mdshahsamir.ui.CreateCategoryDialog
 import com.mdshahsamir.ui.EditCategoryDialog
 import com.mdshahsamir.ui.InputDialog
@@ -66,6 +68,7 @@ fun DashboardScreen(
     events: DashboardEvents,
     state: DashboardState,
 ) {
+    val context = LocalContext.current
     val expenseState by viewModel.listOfExpense.collectAsStateWithLifecycle()
     val showInputDialogState by viewModel.showInputDialogState.collectAsStateWithLifecycle()
     val showAddCategoryDialog by viewModel.showAddCategoryDialog.collectAsStateWithLifecycle()
@@ -93,6 +96,10 @@ fun DashboardScreen(
         InputDialog(
             title = showInputDialogState.second.category,
             onClickSpend = { spendAmount ->
+                if(spendAmount + showInputDialogState.second.spendAmount > showInputDialogState.second.budget) {
+                    Toast.makeText(context, context.getString(R.string.you_crossed_your_budget_on_x, showInputDialogState.second.category), Toast.LENGTH_LONG).show()
+                }
+
                 viewModel.processIntent(ExpenseIntent.Spend(spendAmount))
                 viewModel.processIntent(ExpenseIntent.HideInputDialog)
             },

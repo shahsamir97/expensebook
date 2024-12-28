@@ -7,7 +7,6 @@ import com.mdshahsamir.expensebook.model.Expense
 import com.mdshahsamir.expensebook.model.TransactionData
 import com.mdshahsamir.expensebook.model.TransactionType
 import com.mdshahsamir.expensebook.toExpense
-import com.mdshahsamir.expensebook.toTimestamp
 import com.mdshahsamir.expensebook.toUiDateFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -76,7 +75,7 @@ class DashboardRepositoryImpl @Inject constructor(
                     transactionId = it.transactionId,
                     category = it.category,
                     amount = it.amount,
-                    time = it.time.toUiDateFormat(),
+                    time = it.time,
                     type = it.type
                 )
             }
@@ -92,7 +91,7 @@ class DashboardRepositoryImpl @Inject constructor(
                 Transaction(
                     amount = transactionAmount,
                     category = expense.category,
-                    time = System.currentTimeMillis(),
+                    time = System.currentTimeMillis().toUiDateFormat(),
                     type = type
                 )
             )
@@ -107,7 +106,7 @@ class DashboardRepositoryImpl @Inject constructor(
                         transactionId = it.transactionId,
                         amount = it.amount,
                         type = it.type,
-                        time = it.time.toTimestamp(),
+                        time = it.time,
                         category = it.category
                     )
                 }
