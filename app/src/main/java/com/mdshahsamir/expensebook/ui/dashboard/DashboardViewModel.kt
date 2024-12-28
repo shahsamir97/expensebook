@@ -205,14 +205,16 @@ class DashboardViewModel @Inject constructor(
             retrieveTransactions()
             _transactionState.update {
                 it.copy(
-                    selectedFilter = TransactionsState.DefaultState.selectedFilter
+                    selectedFilter = TransactionsState.DefaultState.selectedFilter,
+                    showCustomFilter = false,
                 )
             }
         } else {
             retrieveTransactions()
             _transactionState.update {
                 it.copy(
-                    selectedFilter = TransactionFilter(startDate, endDate)
+                    selectedFilter = TransactionFilter(startDate, endDate),
+                    showCustomFilter = false,
                 )
             }
         }
