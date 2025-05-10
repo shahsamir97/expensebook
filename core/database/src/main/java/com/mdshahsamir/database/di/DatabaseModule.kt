@@ -3,6 +3,7 @@ package com.mdshahsamir.database.di
 import android.content.Context
 import androidx.room.Room
 import com.mdshahsamir.database.AppDatabase
+import com.mdshahsamir.database.migration.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +20,7 @@ class DatabaseModule {
             context,
             AppDatabase::class.java, "expense-book-database"
         )
+            .addMigrations(MIGRATION_1_2)
             .build()
     }
 }
