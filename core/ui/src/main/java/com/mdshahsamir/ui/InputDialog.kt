@@ -85,6 +85,7 @@ fun CreateCategoryDialog(
 ) {
     var title by rememberSaveable { mutableStateOf("") }
     var budget by rememberSaveable { mutableStateOf("") }
+    var budgetError by rememberSaveable { mutableStateOf(false) }
     var isError by rememberSaveable { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onClose) {
@@ -112,14 +113,20 @@ fun CreateCategoryDialog(
                     onValueChange = { budget = it },
                     label = { Text(stringResource(R.string.enter_budget)) },
                     supportingText = {
-                        if (isError) {
-                            Text(
-                                text = stringResource(R.string.please_enter_a_valid_number),
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        } else {
-                            Text(stringResource(R.string.eg_100_200_50))
-                        }
+                        Text(
+                            text = if (isError) {
+                                stringResource(R.string.please_enter_a_valid_number)
+                            } else if (budgetError){
+                                stringResource(id = R.string.budget_cannot_be_0)
+                            } else {
+                                stringResource(R.string.eg_100_200_50)
+                            },
+                            color = if (isError || budgetError) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            }
+                        )
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -130,6 +137,14 @@ fun CreateCategoryDialog(
                 Spacer(modifier = Modifier.height(6.dp))
                 Button(onClick = {
                     try {
+                        if (budget.toFloat() < 1) {
+                            budgetError = true
+                            isError = false
+                            return@Button
+                        } else {
+                            budgetError = false
+                        }
+
                         onClickAddCategory(title, budget.toFloat())
                         isError = false
                     } catch (e: Exception) {
@@ -154,6 +169,7 @@ fun EditCategoryDialog(
 ) {
     var titleInput by rememberSaveable { mutableStateOf(title) }
     var budgetInput by rememberSaveable { mutableStateOf(budget.toString()) }
+    var budgetError by rememberSaveable { mutableStateOf(false) }
     var spendAmountInput by rememberSaveable { mutableStateOf(spend.toString()) }
     var isError by rememberSaveable { mutableStateOf(false) }
 
@@ -181,7 +197,17 @@ fun EditCategoryDialog(
                     value = budgetInput,
                     onValueChange = { budgetInput = it },
                     label = { Text(stringResource(R.string.enter_budget)) },
-                    supportingText = { Text(stringResource(R.string.eg_1000_2800_50)) },
+                    supportingText = {
+                        Text(
+                            text = if (budgetError) {
+                                stringResource(R.string.budget_cannot_be_0)
+                            } else {
+                                stringResource(R.string.eg_1000_2800_50)
+                            },
+                            color = if (budgetError) MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next,
@@ -212,6 +238,13 @@ fun EditCategoryDialog(
 
                 Button(onClick = {
                     try {
+                        if (budgetInput.toFloat() < 1) {
+                            budgetError = true
+                            return@Button
+                        } else {
+                            budgetError = false
+                        }
+
                         onClickUpdateCategory(
                             titleInput,
                             budgetInput.toFloat(),
