@@ -31,8 +31,6 @@ class NotificationWorker @AssistedInject constructor(
 
     companion object {
         private const val TAG = "NotificationWorker"
-        const val KEY_DELAY = "key_delay"
-        const val REMINDER_NOTIFICATION_TAG = "reminder_notification_work"
     }
 }
 
