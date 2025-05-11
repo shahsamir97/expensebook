@@ -72,7 +72,12 @@ fun BottomNavigation(navController: NavController, currentRoute: String?) {
                     contentDescription = stringResource(R.string.transactions)
                 )
             },
-            label = { Text(text = stringResource(R.string.transactions), style = MaterialTheme.typography.labelLarge) }
+            label = {
+                Text(
+                    text = stringResource(R.string.transactions),
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         )
     }
 }
