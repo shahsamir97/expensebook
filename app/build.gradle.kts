@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace = "com.mdshahsamir.expensebook"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.samapplab.expensebook"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.1"
+        targetSdk = 36
+        versionCode = 4
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
