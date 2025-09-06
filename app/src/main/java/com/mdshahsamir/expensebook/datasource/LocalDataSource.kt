@@ -10,6 +10,7 @@ import javax.inject.Inject
 interface LocalDataSource {
     suspend fun addCategory(expenseDbModel: ExpenseDbModel)
     suspend fun updateCategory(expenseDbModel: ExpenseDbModel)
+    suspend fun resetAllCategory()
     suspend fun getAllCategories(): Flow<List<ExpenseDbModel>>
     suspend fun deleteCategory(expenseDbModel: ExpenseDbModel)
     suspend fun getAllTransaction(): Flow<List<Transaction>>
@@ -28,6 +29,10 @@ class LocalDataSourceImpl @Inject constructor(
 
     override suspend fun updateCategory(expenseDbModel: ExpenseDbModel) {
         expenseDao.updateExpenseCategory(expenseDbModel)
+    }
+
+    override suspend fun resetAllCategory() {
+        expenseDao.resetAllCategory()
     }
 
     override suspend fun getAllCategories(): Flow<List<ExpenseDbModel>> =

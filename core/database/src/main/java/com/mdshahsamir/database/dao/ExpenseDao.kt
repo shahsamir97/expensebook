@@ -21,4 +21,7 @@ interface ExpenseDao {
 
     @Delete
     fun deleteCategory(expenseDbModel: ExpenseDbModel)
+
+    @Query("Update ExpenseDbModel set spendAmount =  0")
+    fun resetAllCategory()
 }

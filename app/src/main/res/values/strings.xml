@@ -22,4 +22,5 @@
     <string name="export_as_pdf">Export as PDF</string>
     <string name="you_crossed_your_budget_on_x">You crossed your budget on %1$s</string>
     <string name="total_spend">TOTAL SPEND</string>
+    <string name="reset_all_category">Reset all category</string>
 </resources>

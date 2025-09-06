@@ -23,8 +23,13 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -37,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -140,6 +146,24 @@ fun DashboardScreen(
             )
         }
     }
+
+    if (state.showResetBudgetDialog) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {
+                Button(onClick = events::onConfirmResetCategory) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(onClick = events::onClickResetCategory) {
+                    Text("No")
+                }
+            },
+            title = { Text("Are you sure?") },
+            text = { Text("Resetting all category will set the expenses on each category to 0") }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,6 +178,7 @@ fun DashboardContent(
     onClickUpdateCategory: (expense: Expense) -> Unit,
 ) {
     var showOptionsMenu by rememberSaveable { mutableStateOf(Pair(false, Expense())) }
+    var isDropdownExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -166,6 +191,28 @@ fun DashboardContent(
                     )
                 },
                 actions = {
+                    Box {
+                        IconButton(onClick = { isDropdownExpanded = !isDropdownExpanded }) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoreVert,
+                                contentDescription = stringResource(R.string.edit),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isDropdownExpanded,
+                            onDismissRequest = { isDropdownExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.reset_all_category)) },
+                                onClick = {
+                                    isDropdownExpanded = false
+                                    events.onClickResetCategory()
+                                }
+                            )
+                        }
+                    }
+
                     if (showOptionsMenu.first) {
                         Row {
                             IconButton(onClick = {
@@ -357,6 +404,13 @@ internal fun DashboardScreenPreview() {
             state = DashboardState.DefaultState.copy(totalSpend = 200f, income = 300f),
             events = object : DashboardEvents {
                 override fun saveIncomeInput(amount: Float) {}
+                override fun onClickResetCategory() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onConfirmResetCategory() {
+                    TODO("Not yet implemented")
+                }
             },
             expenseList = listOf(
 

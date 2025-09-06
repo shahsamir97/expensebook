@@ -9,6 +9,7 @@ data class DashboardState(
     val showInputDialog: Boolean,
     val showCreateCategoryDialog: Boolean,
     val showEditCategoryDialog: Boolean,
+    val showResetBudgetDialog: Boolean,
     val income: Float,
     val totalSpend: Float,
 ) {
@@ -20,6 +21,7 @@ data class DashboardState(
             showOptionsMenu = false,
             showEditCategoryDialog = false,
             showCreateCategoryDialog = false,
+            showResetBudgetDialog = false,
             income = 0f,
             totalSpend = 0f,
         )

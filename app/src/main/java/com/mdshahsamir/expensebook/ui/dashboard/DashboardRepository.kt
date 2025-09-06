@@ -17,6 +17,7 @@ import javax.inject.Inject
 interface DashboardRepository {
     suspend fun addCategory(expense: Expense)
     suspend fun updateCategory(expense: Expense)
+    suspend fun resetAllCategory()
     suspend fun getAllCategories(): Flow<List<Expense>>
     suspend fun deleteCategory(expense: Expense)
     suspend fun getAllTransaction(): Flow<List<TransactionData>>
@@ -47,6 +48,12 @@ class DashboardRepositoryImpl @Inject constructor(
     override suspend fun updateCategory(expense: Expense) {
         withContext(Dispatchers.IO) {
             localDataSource.updateCategory(expense.toExpense())
+        }
+    }
+
+    override suspend fun resetAllCategory() {
+        withContext(Dispatchers.IO) {
+            localDataSource.resetAllCategory()
         }
     }
 

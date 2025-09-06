@@ -414,6 +414,18 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    override fun onClickResetCategory() {
+        _dashboardState.update { it.copy(showResetBudgetDialog = !_dashboardState.value.showResetBudgetDialog) }
+    }
+
+    override fun onConfirmResetCategory() {
+        _dashboardState.update { it.copy(showResetBudgetDialog = false) }
+
+        viewModelScope.launch {
+            dashboardRepository.resetAllCategory()
+        }
+    }
+
     companion object {
         const val TAG = "DashboardViewModel"
     }
