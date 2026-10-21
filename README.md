@@ -39,12 +39,25 @@ expensebook/
 └── .github/workflows/   # CI workflows
 ```
 
-## 🚀 Getting Started
+🚀 Getting Started
 
-1. Clone the repository.
-2. Open the project in Android Studio.
-3. Sync Gradle dependencies.
-4. Build and run on an Android device or emulator (API 26+).
+Clone the repository:
+
+git clone https://github.com/shahsamir97/expensebook.git
+
+Open the project in Android Studio.
+
+Create a Firebase project in the Firebase Console, register an Android app using the project's applicationId, and enable Firebase Crashlytics.
+
+Download the google-services.json configuration file and place it in the app/ directory:
+
+expensebook/
+└── app/
+    └── google-services.json
+
+Sync Gradle and run the app on an Android device or emulator.
+
+Note: google-services.json is not included in this repository. A valid Firebase configuration is required to build and run the project.
 
 
 *Built with a focus on clean architecture, modern Android development practices, and everyday usability.*
